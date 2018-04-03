@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
@@ -41,16 +40,31 @@ public class MainActivity extends AppCompatActivity {
                 constraint.rightToRightOfParent(0);
                 constraint.topToTopOfParent(0);
                 constraint.bottomToTopOfParent(400);
-                constraint.setHorizontalBias(0.5f);
             }
+
+            int size = constraint.getWeightWidth(5, 1, 60);
 
             if (position == 1) {
 
-                constraint.leftToLeftOfParent(0);
-                constraint.rightToRightOfParent(0);
-                constraint.topToTopOfParent(0);
-                constraint.bottomToBottomOfParent(0);
-                constraint.setVerticalBias(0.5f);
+                constraint.leftToLeftOfParent(
+                        10,
+                        size);
+                constraint.topToBottomOfView(0, 10, size);
+            }
+
+            if (position >= 2 && position <= 5) {
+                constraint.copyFrom(position - 1).translateX(10 + size);
+            }
+
+            if (position == 6) {
+                constraint.leftToLeftOfParent(
+                        10,
+                        size);
+                constraint.topToBottomOfView(5, 10, size);
+            }
+
+            if (position >= 7 && position <= 11) {
+                constraint.copyFrom(position - 1).translateX(10 + size);
             }
 
             return constraint;
@@ -60,18 +74,17 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View generateViewTo(int position) {
 
-            //            TextView textView = new TextView(MainActivity.this);
-
-            TextView textView= (TextView) LayoutInflater.from(MainActivity.this)
-                    .inflate(R.layout.item_text,
-                            mConstraintLayout,
-                            false
-                    );
-
-
+            TextView textView = new TextView(MainActivity.this);
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
             textView.setGravity(Gravity.CENTER);
-            textView.setBackgroundColor(getResources().getColor(R.color.orange));
+
+            if (position == 0) {
+                textView.setBackgroundResource(R.drawable.rect);
+            } else if (position < 11) {
+
+                textView.setBackgroundResource(R.drawable.circle);
+            }
+
             return textView;
         }
 
@@ -79,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int getChildCount() {
 
-            return 2;
+            return 11;
         }
 
 

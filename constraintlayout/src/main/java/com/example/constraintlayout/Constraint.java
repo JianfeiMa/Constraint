@@ -15,6 +15,7 @@ import java.util.Locale;
  *
  * @author wuxio
  */
+@SuppressWarnings("UnusedReturnValue")
 public class Constraint {
 
     /**
@@ -106,7 +107,7 @@ public class Constraint {
      *
      * @param horizontalBias 水平偏移量
      */
-    public void setHorizontalBias(float horizontalBias) {
+    public Constraint setHorizontalBias(float horizontalBias) {
 
         final int min = 0;
         final int max = 1;
@@ -120,6 +121,7 @@ public class Constraint {
         }
 
         this.horizontalBias = horizontalBias;
+        return this;
     }
 
 
@@ -128,7 +130,7 @@ public class Constraint {
      *
      * @param verticalBias 垂直偏移量
      */
-    public void setVerticalBias(float verticalBias) {
+    public Constraint setVerticalBias(float verticalBias) {
 
         final int min = 0;
         final int max = 1;
@@ -142,6 +144,7 @@ public class Constraint {
         }
 
         this.verticalBias = verticalBias;
+        return this;
     }
 
     //============================生成spec============================
@@ -181,31 +184,7 @@ public class Constraint {
         return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY);
     }
 
-    //============================约束至Parent============================
-
-
-    /**
-     * 约束自己的左边至布局的左边
-     *
-     * @param offset 偏移量,与坐标轴同向
-     */
-    public void leftToLeftOfParent(int offset) {
-
-        left = mParent.getParentLeft() + offset;
-    }
-
-
-    /**
-     * 约束自己的左边至布局的左边,并指定宽度
-     *
-     * @param offset 偏移量,与坐标轴同向
-     * @param width  宽度
-     */
-    public void leftToLeftOfParent(int offset, int width) {
-
-        left = mParent.getParentLeft() + offset;
-        right = left + width;
-    }
+    //============================right bottom check============================
 
 
     private void checkParentRight() {
@@ -225,16 +204,91 @@ public class Constraint {
         }
     }
 
+    //============================weight support============================
+
+
+    public int getWeightWidth(int base, int weight) {
+
+        return getWeightWidth(base, weight, 0);
+    }
+
+
+    public int getWeightWidth(int base, int weight, int usedWidth) {
+
+        int parentRight = mParent.getParentRight();
+
+        if (parentRight == -1) {
+            throw new RuntimeException(" can't get weight Width, because width is not exactly ");
+        }
+
+        int useableWidth = parentRight - mParent.getParentLeft() - usedWidth;
+
+        int cellWidth = (int) (useableWidth * 1f / base);
+
+        return weight * cellWidth;
+    }
+
+
+    public int getWeightHeight(int base, int weight) {
+
+        return getWeightHeight(base, weight, 0);
+    }
+
+
+    public int getWeightHeight(int base, int weight, int usedHeight) {
+
+        int parentBottom = mParent.getParentBottom();
+
+        if (parentBottom == -1) {
+            throw new RuntimeException(" can't get weight Height, because Height is not exactly ");
+        }
+
+        int useableHeight = parentBottom - mParent.getParentTop() - usedHeight;
+
+        int cellHeight = (int) (useableHeight * 1f / base) + 1;
+
+        return weight * cellHeight;
+    }
+
+    //============================约束至Parent============================
+
+
+    /**
+     * 约束自己的左边至布局的左边
+     *
+     * @param offset 偏移量,与坐标轴同向
+     */
+    public Constraint leftToLeftOfParent(int offset) {
+
+        left = mParent.getParentLeft() + offset;
+        return this;
+    }
+
+
+    /**
+     * 约束自己的左边至布局的左边,并指定宽度
+     *
+     * @param offset 偏移量,与坐标轴同向
+     * @param width  宽度
+     */
+    public Constraint leftToLeftOfParent(int offset, int width) {
+
+        left = mParent.getParentLeft() + offset;
+        right = left + width;
+        return this;
+    }
+
 
     /**
      * 约束自己的左边至布局的右边
      *
      * @param offset 偏移量,与坐标轴同向
      */
-    public void leftToRightOfParent(int offset) {
+    public Constraint leftToRightOfParent(int offset) {
 
         checkParentRight();
         left = mParent.getParentRight() + offset;
+        return this;
     }
 
 
@@ -244,12 +298,13 @@ public class Constraint {
      * @param offset 偏移量,与坐标轴同向
      * @param width  期望的宽度
      */
-    public void leftToRightOfParent(int offset, int width) {
+    public Constraint leftToRightOfParent(int offset, int width) {
 
         checkParentRight();
 
         left = mParent.getParentRight() + offset;
         right = left + width;
+        return this;
     }
 
 
@@ -258,9 +313,10 @@ public class Constraint {
      *
      * @param offset 偏移量,与坐标轴同向
      */
-    public void rightToLeftOfParent(int offset) {
+    public Constraint rightToLeftOfParent(int offset) {
 
         right = mParent.getParentLeft() + offset;
+        return this;
     }
 
 
@@ -270,10 +326,11 @@ public class Constraint {
      * @param offset 偏移量,与坐标轴同向
      * @param width  期望的宽度
      */
-    public void rightToLeftOfParent(int offset, int width) {
+    public Constraint rightToLeftOfParent(int offset, int width) {
 
         right = mParent.getParentLeft() + offset;
         left = right - width;
+        return this;
     }
 
 
@@ -282,11 +339,12 @@ public class Constraint {
      *
      * @param offset 偏移量,与坐标轴同向
      */
-    public void rightToRightOfParent(int offset) {
+    public Constraint rightToRightOfParent(int offset) {
 
         checkParentRight();
 
         right = mParent.getParentRight() + offset;
+        return this;
     }
 
 
@@ -296,12 +354,13 @@ public class Constraint {
      * @param offset 偏移量,与坐标轴同向
      * @param width  期望的宽度
      */
-    public void rightToRightOfParent(int offset, int width) {
+    public Constraint rightToRightOfParent(int offset, int width) {
 
         checkParentRight();
 
         right = mParent.getParentRight() + offset;
         left = right - width;
+        return this;
     }
 
 
@@ -310,9 +369,10 @@ public class Constraint {
      *
      * @param offset 偏移量,与坐标轴同向
      */
-    public void topToTopOfParent(int offset) {
+    public Constraint topToTopOfParent(int offset) {
 
         top = mParent.getParentTop() + offset;
+        return this;
     }
 
 
@@ -322,10 +382,11 @@ public class Constraint {
      * @param offset 偏移量,与坐标轴同向
      * @param height 期望view的高度
      */
-    public void topToTopOfParent(int offset, int height) {
+    public Constraint topToTopOfParent(int offset, int height) {
 
         top = mParent.getParentTop() + offset;
         bottom = top + height;
+        return this;
     }
 
 
@@ -334,11 +395,12 @@ public class Constraint {
      *
      * @param offset 偏移量,与坐标轴同向
      */
-    public void topToBottomOfParent(int offset) {
+    public Constraint topToBottomOfParent(int offset) {
 
         checkParentBottom();
 
         top = mParent.getParentBottom() + offset;
+        return this;
     }
 
 
@@ -348,12 +410,13 @@ public class Constraint {
      * @param offset 偏移量,与坐标轴同向
      * @param height 期望的高度
      */
-    public void topToBottomOfParent(int offset, int height) {
+    public Constraint topToBottomOfParent(int offset, int height) {
 
         checkParentBottom();
 
         top = mParent.getParentBottom() + offset;
         bottom = top + height;
+        return this;
     }
 
 
@@ -362,9 +425,10 @@ public class Constraint {
      *
      * @param offset 偏移量,与坐标轴同向
      */
-    public void bottomToTopOfParent(int offset) {
+    public Constraint bottomToTopOfParent(int offset) {
 
         bottom = mParent.getParentTop() + offset;
+        return this;
     }
 
 
@@ -374,10 +438,11 @@ public class Constraint {
      * @param offset 偏移量,与坐标轴同向
      * @param height 期望的高度
      */
-    public void bottomToTopOfParent(int offset, int height) {
+    public Constraint bottomToTopOfParent(int offset, int height) {
 
         bottom = mParent.getParentTop() + offset;
         top = bottom - height;
+        return this;
     }
 
 
@@ -386,11 +451,12 @@ public class Constraint {
      *
      * @param offset 偏移量,与坐标轴同向
      */
-    public void bottomToBottomOfParent(int offset) {
+    public Constraint bottomToBottomOfParent(int offset) {
 
         checkParentBottom();
 
         bottom = mParent.getParentBottom() + offset;
+        return this;
     }
 
 
@@ -400,25 +466,13 @@ public class Constraint {
      * @param offset 偏移量,与坐标轴同向
      * @param height 期望的高度
      */
-    public void bottomToBottomOfParent(int offset, int height) {
+    public Constraint bottomToBottomOfParent(int offset, int height) {
 
         checkParentBottom();
 
         bottom = mParent.getParentBottom() + offset;
         top = bottom - height;
-    }
-
-
-    /**
-     * 约束自己的左边至位于position view的左边
-     *
-     * @param position view的position
-     * @param offset   偏移量,与坐标轴同向
-     */
-    public void leftToLeftOfView(int position, int offset) {
-
-        left = mParent.getViewLeft(position) + offset;
-
+        return this;
     }
 
     //============================约束至view============================
@@ -429,13 +483,26 @@ public class Constraint {
      *
      * @param position view的position
      * @param offset   偏移量,与坐标轴同向
+     */
+    public Constraint leftToLeftOfView(int position, int offset) {
+
+        left = mParent.getViewLeft(position) + offset;
+        return this;
+    }
+
+
+    /**
+     * 约束自己的左边至位于position view的左边
+     *
+     * @param position view的position
+     * @param offset   偏移量,与坐标轴同向
      * @param width    期望的宽度
      */
-    public void leftToLeftOfView(int position, int offset, int width) {
+    public Constraint leftToLeftOfView(int position, int offset, int width) {
 
         left = mParent.getViewLeft(position) + offset;
         right = left + width;
-
+        return this;
     }
 
 
@@ -445,9 +512,10 @@ public class Constraint {
      * @param position view的position
      * @param offset   偏移量,与坐标轴同向
      */
-    public void leftToRightOfView(int position, int offset) {
+    public Constraint leftToRightOfView(int position, int offset) {
 
         left = mParent.getViewRight(position) + offset;
+        return this;
     }
 
 
@@ -458,11 +526,11 @@ public class Constraint {
      * @param offset   偏移量,与坐标轴同向
      * @param width    期望的宽度
      */
-    public void leftToRightOfView(int position, int offset, int width) {
+    public Constraint leftToRightOfView(int position, int offset, int width) {
 
         left = mParent.getViewRight(position) + offset;
         right = left + width;
-
+        return this;
     }
 
 
@@ -472,9 +540,10 @@ public class Constraint {
      * @param position view的position
      * @param offset   偏移量,与坐标轴同向
      */
-    public void rightToLeftOfView(int position, int offset) {
+    public Constraint rightToLeftOfView(int position, int offset) {
 
         right = mParent.getViewLeft(position) + offset;
+        return this;
     }
 
 
@@ -485,10 +554,11 @@ public class Constraint {
      * @param offset   偏移量,与坐标轴同向
      * @param width    期望的宽度
      */
-    public void rightToLeftOfView(int position, int offset, int width) {
+    public Constraint rightToLeftOfView(int position, int offset, int width) {
 
         right = mParent.getViewLeft(position) + offset;
         left = right - width;
+        return this;
     }
 
 
@@ -498,9 +568,10 @@ public class Constraint {
      * @param position view的position
      * @param offset   偏移量,与坐标轴同向
      */
-    public void rightToRightOfView(int position, int offset) {
+    public Constraint rightToRightOfView(int position, int offset) {
 
         right = mParent.getViewRight(position) + offset;
+        return this;
     }
 
 
@@ -511,10 +582,11 @@ public class Constraint {
      * @param offset   偏移量,与坐标轴同向
      * @param width    期望的宽度
      */
-    public void rightToRightOfView(int position, int offset, int width) {
+    public Constraint rightToRightOfView(int position, int offset, int width) {
 
         right = mParent.getViewRight(position) + offset;
         left = right - width;
+        return this;
     }
 
 
@@ -524,9 +596,10 @@ public class Constraint {
      * @param position view的position
      * @param offset   偏移量,与坐标轴同向
      */
-    public void topToTopOfView(int position, int offset) {
+    public Constraint topToTopOfView(int position, int offset) {
 
         top = mParent.getViewTop(position) + offset;
+        return this;
     }
 
 
@@ -537,11 +610,11 @@ public class Constraint {
      * @param offset   偏移量,与坐标轴同向
      * @param height   期望的高度
      */
-    public void topToTopOfView(int position, int offset, int height) {
+    public Constraint topToTopOfView(int position, int offset, int height) {
 
         top = mParent.getViewTop(position) + offset;
         bottom = top + height;
-
+        return this;
     }
 
 
@@ -551,9 +624,10 @@ public class Constraint {
      * @param position view的position
      * @param offset   偏移量,与坐标轴同向
      */
-    public void topToBottomOfView(int position, int offset) {
+    public Constraint topToBottomOfView(int position, int offset) {
 
         top = mParent.getViewBottom(position) + offset;
+        return this;
     }
 
 
@@ -564,10 +638,11 @@ public class Constraint {
      * @param offset   偏移量,与坐标轴同向
      * @param height   期望的高度
      */
-    public void topToBottomOfView(int position, int offset, int height) {
+    public Constraint topToBottomOfView(int position, int offset, int height) {
 
         top = mParent.getViewBottom(position) + offset;
         bottom = top + height;
+        return this;
     }
 
 
@@ -577,9 +652,10 @@ public class Constraint {
      * @param position view的position
      * @param offset   偏移量,与坐标轴同向
      */
-    public void bottomToTopOfView(int position, int offset) {
+    public Constraint bottomToTopOfView(int position, int offset) {
 
         bottom = mParent.getViewTop(position) + offset;
+        return this;
     }
 
 
@@ -590,11 +666,11 @@ public class Constraint {
      * @param offset   偏移量,与坐标轴同向
      * @param height   期望的高度
      */
-    public void bottomToTopOfView(int position, int offset, int height) {
+    public Constraint bottomToTopOfView(int position, int offset, int height) {
 
         bottom = mParent.getViewTop(position) + offset;
         top = bottom - height;
-
+        return this;
     }
 
 
@@ -604,9 +680,10 @@ public class Constraint {
      * @param position view的position
      * @param offset   偏移量,与坐标轴同向
      */
-    public void bottomToBottomOfView(int position, int offset) {
+    public Constraint bottomToBottomOfView(int position, int offset) {
 
         bottom = mParent.getViewBottom(position) + offset;
+        return this;
     }
 
 
@@ -617,43 +694,48 @@ public class Constraint {
      * @param offset   两条边之间的margin值
      * @param height   期望的高度
      */
-    public void bottomToBottomOfView(int position, int offset, int height) {
+    public Constraint bottomToBottomOfView(int position, int offset, int height) {
 
         bottom = mParent.getViewBottom(position) + offset;
         top = bottom - height;
+        return this;
     }
 
     //============================从一个view复制一个约束============================
 
 
-    public void copyFrom(int position) {
+    public Constraint copyFrom(int position) {
 
         left = mParent.getViewLeft(position);
-        top = mParent.getViewLeft(position);
-        right = mParent.getViewLeft(position);
-        bottom = mParent.getViewLeft(position);
+        top = mParent.getViewTop(position);
+        right = mParent.getViewRight(position);
+        bottom = mParent.getViewBottom(position);
+        return this;
     }
 
 
-    public void translateX(int offset) {
+    public Constraint translateX(int offset) {
 
         left += offset;
         right += offset;
+        return this;
     }
 
 
-    public void translateY(int offset) {
+    public Constraint translateY(int offset) {
 
         top += offset;
         bottom += offset;
+        return this;
     }
 
 
-    public void translate(int leftOffset, int topOffset, int rightOffset, int bottomOffset) {
+    public Constraint translate(int leftOffset, int topOffset, int rightOffset, int bottomOffset) {
 
         left += leftOffset;
         top += topOffset;
         right += rightOffset;
         bottom += bottomOffset;
+        return this;
     }
 }

@@ -6,23 +6,23 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
+
 /**
  * Created by LiuJin on 2018-04-03:9:53
  *
  * @author wuxio
  */
-public class ConstraintLayout < T extends BaseAdapter > extends ViewGroup implements ConstraintSupport {
+public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
     private static final String TAG = "ConstraintLayout";
 
-    private T mAdapter;
+    private BaseAdapter mAdapter;
 
     private Constraint mConstraint;
 
     private int mParentRight;
     private int mParentBottom;
-
-    private boolean isOnMeasure;
 
 
     public ConstraintLayout(Context context) {
@@ -51,7 +51,7 @@ public class ConstraintLayout < T extends BaseAdapter > extends ViewGroup implem
 
 
     /**
-     * @return 一个空约束
+     * @return 一个空约束, 复用已有的
      */
     public Constraint obtainConstraint() {
 
@@ -60,13 +60,24 @@ public class ConstraintLayout < T extends BaseAdapter > extends ViewGroup implem
     }
 
 
-    public void setAdapter(T adapter) {
+    /**
+     * @return new 新创建一个
+     */
+    public Constraint newConstraint() {
+
+        Constraint constraint = new Constraint(this);
+        constraint.init();
+        return constraint;
+    }
+
+
+    public void setAdapter(BaseAdapter adapter) {
 
         mAdapter = adapter;
     }
 
 
-    public T getAdapter() {
+    public BaseAdapter getAdapter() {
 
         return mAdapter;
     }
@@ -92,7 +103,7 @@ public class ConstraintLayout < T extends BaseAdapter > extends ViewGroup implem
             mParentBottom = -1;
         }
 
-        T adapter = mAdapter;
+        BaseAdapter adapter = mAdapter;
         final int childCount = adapter.getChildCount();
 
         int mostRight = 0;
@@ -230,7 +241,7 @@ public class ConstraintLayout < T extends BaseAdapter > extends ViewGroup implem
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
-        T adapter = mAdapter;
+        BaseAdapter adapter = mAdapter;
         int count = adapter.getChildCount();
         for (int i = 0; i < count; i++) {
 
@@ -246,6 +257,18 @@ public class ConstraintLayout < T extends BaseAdapter > extends ViewGroup implem
             adapter.afterLayout(i, child);
         }
 
+    }
+
+
+    public void setUpWith(ViewOperator< View >[] viewOperators) {
+
+        setAdapter(new ArrayOperatorAdapter(viewOperators));
+    }
+
+
+    public void setUpWith(List< ViewOperator > viewOperators) {
+
+        setAdapter(new ListOperatorAdapter(viewOperators));
     }
 
     //============================Layout Params============================
@@ -388,7 +411,7 @@ public class ConstraintLayout < T extends BaseAdapter > extends ViewGroup implem
     public int getParentRight() {
 
         if (mParentRight == -1) {
-            return mParentRight;
+            return -1;
         } else {
             return mParentRight - getPaddingRight();
         }
@@ -399,7 +422,7 @@ public class ConstraintLayout < T extends BaseAdapter > extends ViewGroup implem
     public int getParentBottom() {
 
         if (mParentBottom == -1) {
-            return mParentBottom;
+            return -1;
         } else {
             return mParentBottom - getPaddingBottom();
         }
@@ -431,5 +454,101 @@ public class ConstraintLayout < T extends BaseAdapter > extends ViewGroup implem
     public int getViewBottom(int position) {
 
         return getChildLayoutParams(position).bottom;
+    }
+
+    //============================ view operate support ============================
+
+    @SuppressWarnings("unchecked")
+    public class ArrayOperatorAdapter extends BaseAdapter {
+
+        private ViewOperator[] mOperators;
+
+
+        public ArrayOperatorAdapter(ViewOperator[] operators) {
+
+            mOperators = operators;
+        }
+
+
+        @Override
+        public Constraint generateConstraintTo(int position, Constraint constraint) {
+
+            return mOperators[position].onGenerateConstraint(position, constraint);
+        }
+
+
+        @Override
+        public View generateViewTo(int position) {
+
+            return mOperators[position].onGenerateView(position);
+        }
+
+
+        @Override
+        public int getChildCount() {
+
+            return mOperators.length;
+        }
+
+
+        @Override
+        public void beforeLayout(int position, View view) {
+
+            mOperators[position].onBeforeLayout(position, view);
+        }
+
+
+        @Override
+        public void afterLayout(int position, View view) {
+
+            mOperators[position].onAfterLayout(position, view);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public class ListOperatorAdapter extends BaseAdapter {
+
+        private List< ViewOperator > mOperators;
+
+
+        public ListOperatorAdapter(List< ViewOperator > operators) {
+
+            mOperators = operators;
+        }
+
+
+        @Override
+        public Constraint generateConstraintTo(int position, Constraint constraint) {
+
+            return mOperators.get(position).onGenerateConstraint(position, constraint);
+        }
+
+
+        @Override
+        public View generateViewTo(int position) {
+
+            return mOperators.get(position).onGenerateView(position);
+        }
+
+
+        @Override
+        public int getChildCount() {
+
+            return mOperators.size();
+        }
+
+
+        @Override
+        public void beforeLayout(int position, View view) {
+
+            mOperators.get(position).onBeforeLayout(position, view);
+        }
+
+
+        @Override
+        public void afterLayout(int position, View view) {
+
+            mOperators.get(position).onAfterLayout(position, view);
+        }
     }
 }
