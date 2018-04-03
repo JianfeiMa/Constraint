@@ -260,7 +260,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
-    public void setUpWith(ViewOperator< View >[] viewOperators) {
+    public void setUpWith(ViewOperator[] viewOperators) {
 
         setAdapter(new ArrayOperatorAdapter(viewOperators));
     }

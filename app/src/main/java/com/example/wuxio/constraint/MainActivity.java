@@ -4,19 +4,18 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.TextView;
 
-import com.example.constraintlayout.BaseAdapter;
 import com.example.constraintlayout.Constraint;
 import com.example.constraintlayout.ConstraintLayout;
+import com.example.constraintlayout.ViewOperator;
 
 /**
  * @author wuxio
  */
 public class MainActivity extends AppCompatActivity {
 
-    private ConstraintLayout< Adapter > mConstraintLayout;
+    private ConstraintLayout mConstraintLayout;
 
 
     @Override
@@ -26,80 +25,193 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mConstraintLayout = findViewById(R.id.constraintLayout);
-        mConstraintLayout.setAdapter(new Adapter());
+        ViewOperator[] operators = new Operators(mConstraintLayout.obtainConstraint()).getOperators();
+        mConstraintLayout.setUpWith(operators);
     }
 
 
-    class Adapter extends BaseAdapter {
+    private class Operators {
+
+        private static final String TAG = "Operators";
+
+        final int size = 11;
+
+        ViewOperator[] mOperators = new ViewOperator[size];
+
+        private Constraint mConstraint;
+
+
+        public ViewOperator[] getOperators() {
+
+            return mOperators;
+        }
+
+
+        public Operators(Constraint constraint) {
+
+            mConstraint = constraint;
+
+            mOperators[0] = new ParentOperator(10, 10, 10, 400);
+
+            mOperators[1] = new LeftBelowWeightOperator(0, 20, 20, 5);
+            mOperators[2] = new LeftCopyOperator(1);
+            mOperators[3] = new LeftCopyOperator(2);
+            mOperators[4] = new LeftCopyOperator(3);
+            mOperators[5] = new LeftCopyOperator(4);
+
+            mOperators[6] = new TopCopyOperator(1);
+            mOperators[7] = new LeftCopyOperator(6);
+            mOperators[8] = new LeftCopyOperator(7);
+            mOperators[9] = new LeftCopyOperator(8);
+            mOperators[10] = new LeftCopyOperator(9);
+        }
+
+    }
+
+    private class ParentOperator implements ViewOperator< TextView > {
+
+        int leftMargin;
+        int topMargin;
+        int rightMargin;
+        int height;
+
+
+        public ParentOperator(int leftMargin, int topMargin, int rightMargin, int height) {
+
+            this.leftMargin = leftMargin;
+            this.topMargin = topMargin;
+            this.rightMargin = rightMargin;
+            this.height = height;
+        }
+
 
         @Override
-        public Constraint generateConstraintTo(int position, Constraint constraint) {
+        public Constraint onGenerateConstraint(int position, Constraint constraint) {
 
-            if (position == 0) {
-                constraint.leftToLeftOfParent(0);
-                constraint.rightToRightOfParent(0);
-                constraint.topToTopOfParent(0);
-                constraint.bottomToTopOfParent(400);
-            }
-
-            int size = constraint.getWeightWidth(5, 1, 60);
-
-            if (position == 1) {
-
-                constraint.leftToLeftOfParent(
-                        10,
-                        size);
-                constraint.topToBottomOfView(0, 10, size);
-            }
-
-            if (position >= 2 && position <= 5) {
-                constraint.copyFrom(position - 1).translateX(10 + size);
-            }
-
-            if (position == 6) {
-                constraint.leftToLeftOfParent(
-                        10,
-                        size);
-                constraint.topToBottomOfView(5, 10, size);
-            }
-
-            if (position >= 7 && position <= 11) {
-                constraint.copyFrom(position - 1).translateX(10 + size);
-            }
+            constraint.leftToLeftOfParent(leftMargin)
+                    .rightToRightOfParent(-rightMargin)
+                    .topToTopOfParent(topMargin)
+                    .bottomToTopOfParent(topMargin + height);
 
             return constraint;
         }
 
 
         @Override
-        public View generateViewTo(int position) {
+        public TextView onGenerateView(int position) {
 
             TextView textView = new TextView(MainActivity.this);
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
             textView.setGravity(Gravity.CENTER);
-
-            if (position == 0) {
-                textView.setBackgroundResource(R.drawable.rect);
-            } else if (position < 11) {
-
-                textView.setBackgroundResource(R.drawable.circle);
-            }
-
+            textView.setBackgroundResource(R.drawable.rect);
             return textView;
         }
 
 
         @Override
-        public int getChildCount() {
+        public void onBeforeLayout(int position, TextView v) {
 
-            return 11;
+            v.setText(String.valueOf(position));
+        }
+    }
+
+    private class LeftBelowWeightOperator implements ViewOperator< TextView > {
+
+        private int position;
+        private int leftMargin;
+        private int topMargin;
+        private int base;
+
+
+        public LeftBelowWeightOperator(int position, int leftMargin, int topMargin, int base) {
+
+            this.position = position;
+            this.leftMargin = leftMargin;
+            this.topMargin = topMargin;
+            this.base = base;
         }
 
 
         @Override
-        public void beforeLayout(int position, View view) {
+        public Constraint onGenerateConstraint(int position, Constraint constraint) {
 
-            ((TextView) view).setText(String.valueOf(position));
+            int size = constraint.getWeightWidth(base, 1, (base + 1) * 20);
+
+            constraint.leftToLeftOfParent(leftMargin, size)
+                    .topToBottomOfView(this.position, topMargin, size);
+
+            return constraint;
+        }
+
+
+        @Override
+        public TextView onGenerateView(int position) {
+
+            TextView textView = new TextView(MainActivity.this);
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+            textView.setGravity(Gravity.CENTER);
+            textView.setBackgroundResource(R.drawable.circle);
+            return textView;
+        }
+    }
+
+    private class LeftCopyOperator implements ViewOperator< TextView > {
+
+        private int position;
+
+
+        public LeftCopyOperator(int position) {
+
+            this.position = position;
+        }
+
+
+        @Override
+        public Constraint onGenerateConstraint(int position, Constraint constraint) {
+
+            constraint.copyFrom(this.position).translateX(constraint.getViewWidth(this.position) + 20);
+            return constraint;
+        }
+
+
+        @Override
+        public TextView onGenerateView(int position) {
+
+            TextView textView = new TextView(MainActivity.this);
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+            textView.setGravity(Gravity.CENTER);
+            textView.setBackgroundResource(R.drawable.circle);
+            return textView;
+        }
+    }
+
+    private class TopCopyOperator implements ViewOperator< TextView > {
+
+        private int position;
+
+
+        public TopCopyOperator(int position) {
+
+            this.position = position;
+        }
+
+
+        @Override
+        public Constraint onGenerateConstraint(int position, Constraint constraint) {
+
+            constraint.copyFrom(this.position).translateY(constraint.getViewHeight(this.position) + 20);
+            return constraint;
+        }
+
+
+        @Override
+        public TextView onGenerateView(int position) {
+
+            TextView textView = new TextView(MainActivity.this);
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+            textView.setGravity(Gravity.CENTER);
+            textView.setBackgroundResource(R.drawable.circle);
+            return textView;
         }
     }
 }

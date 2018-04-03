@@ -5,6 +5,7 @@ package com.example.constraintlayout;
  */
 
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -17,6 +18,8 @@ import java.util.Locale;
  */
 @SuppressWarnings("UnusedReturnValue")
 public class Constraint {
+
+    private static final String TAG = "Constraint";
 
     /**
      * 约束后的尺寸
@@ -221,6 +224,8 @@ public class Constraint {
             throw new RuntimeException(" can't get weight Width, because width is not exactly ");
         }
 
+        Log.i(TAG, "getWeightWidth:" + parentRight);
+
         int useableWidth = parentRight - mParent.getParentLeft() - usedWidth;
 
         int cellWidth = (int) (useableWidth * 1f / base);
@@ -248,6 +253,18 @@ public class Constraint {
         int cellHeight = (int) (useableHeight * 1f / base) + 1;
 
         return weight * cellHeight;
+    }
+
+
+    public int getViewWidth(int position) {
+
+        return mParent.getViewRight(position) - mParent.getViewLeft(position);
+    }
+
+
+    public int getViewHeight(int position) {
+
+        return mParent.getViewBottom(position) - mParent.getViewTop(position);
     }
 
     //============================约束至Parent============================
