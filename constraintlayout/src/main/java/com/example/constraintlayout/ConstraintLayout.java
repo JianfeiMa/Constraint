@@ -271,6 +271,56 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         setAdapter(new ListOperatorAdapter(viewOperators));
     }
 
+    //============================add view============================
+    
+    /**
+     * 标记,添加删除 ExtraView 时,不重新测量布局
+     */
+    private boolean addOrRemoveExtraView = false;
+
+
+    public void addExtraView(View view, Constraint constraint) {
+
+        addExtraView(view, generateDefaultLayoutParams(), constraint);
+    }
+
+
+    public void addExtraView(View view, LayoutParams layoutParams, Constraint constraint) {
+
+        addOrRemoveExtraView = true;
+        addView(view, layoutParams);
+
+        int widthSpec = constraint.makeWidthSpec();
+        int heightSpec = constraint.makeHeightSpec();
+        measureChild(view,
+                widthSpec,
+                heightSpec
+        );
+        LayoutParams params = setChildLayoutParams(constraint, view);
+
+        view.layout(params.left, params.top, params.right, params.bottom);
+
+        addOrRemoveExtraView = false;
+    }
+
+
+    public void removeExtraView(View view) {
+
+        addOrRemoveExtraView = true;
+        removeView(view);
+        addOrRemoveExtraView = false;
+    }
+
+
+    @Override
+    public void requestLayout() {
+
+        if (addOrRemoveExtraView) {
+            return;
+        }
+        super.requestLayout();
+    }
+
     //============================Layout Params============================
 
 

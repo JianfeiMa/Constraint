@@ -1,9 +1,15 @@
 package com.example.wuxio.constraint;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.constraintlayout.Constraint;
@@ -27,6 +33,27 @@ public class MainActivity extends AppCompatActivity {
         mConstraintLayout = findViewById(R.id.constraintLayout);
         ViewOperator[] operators = new Operators(mConstraintLayout.obtainConstraint()).getOperators();
         mConstraintLayout.setUpWith(operators);
+
+        final TextView child = new TextView(MainActivity.this);
+
+        mConstraintLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                child.setBackgroundColor(getResources().getColor(R.color.beige));
+                Constraint constraint = mConstraintLayout.obtainConstraint();
+                constraint.leftToLeftOfParent(300).rightToRightOfParent(-300).topToTopOfParent(50, 200);
+
+                mConstraintLayout.addExtraView(child, constraint);
+            }
+        }, 5000);
+
+        mConstraintLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mConstraintLayout.removeExtraView(child);
+            }
+        }, 10000);
     }
 
 
@@ -34,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         private static final String TAG = "Operators";
 
-        final int size = 11;
+        final int size = 22;
 
         ViewOperator[] mOperators = new ViewOperator[size];
 
@@ -64,6 +91,13 @@ public class MainActivity extends AppCompatActivity {
             mOperators[8] = new LeftCopyOperator(7);
             mOperators[9] = new LeftCopyOperator(8);
             mOperators[10] = new LeftCopyOperator(9);
+
+            for (int i = 11; i < 20; i++) {
+                mOperators[i] = new BottomOperator();
+            }
+
+            mOperators[20] = new LayoutBottomOperator();
+            mOperators[21] = new PagerOperator();
         }
 
     }
@@ -212,6 +246,138 @@ public class MainActivity extends AppCompatActivity {
             textView.setGravity(Gravity.CENTER);
             textView.setBackgroundResource(R.drawable.circle);
             return textView;
+        }
+    }
+
+    private class BottomOperator implements ViewOperator< TextView > {
+
+        @Override
+        public Constraint onGenerateConstraint(int position, Constraint constraint) {
+
+            constraint.leftToLeftOfParent(50)
+                    .rightToRightOfParent(-50)
+                    .topToBottomOfView(position - 1, 50)
+                    .bottomToBottomOfView(position - 1, 350);
+
+            return constraint;
+        }
+
+
+        @Override
+        public TextView onGenerateView(int position) {
+
+            TextView textView = new TextView(MainActivity.this);
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+            textView.setGravity(Gravity.CENTER);
+            textView.setBackgroundResource(R.drawable.rect);
+            return textView;
+        }
+
+
+        @Override
+        public void onBeforeLayout(int position, TextView v) {
+
+            v.setText(String.valueOf(position));
+        }
+    }
+
+    private class LayoutBottomOperator implements ViewOperator< LinearLayout > {
+
+        @Override
+        public Constraint onGenerateConstraint(int position, Constraint constraint) {
+
+            constraint.leftToLeftOfParent(50)
+                    .rightToRightOfParent(-50)
+                    .topToBottomOfView(position - 1, 50)
+                    .bottomToBottomOfView(position - 1, 1350);
+
+            return constraint;
+        }
+
+
+        @Override
+        public LinearLayout onGenerateView(int position) {
+
+            LinearLayout view = (LinearLayout) LayoutInflater.from(MainActivity.this)
+                    .inflate(
+                            R.layout.item_linear,
+                            mConstraintLayout,
+                            false
+                    );
+
+            return view;
+        }
+    }
+
+    private class PagerOperator implements ViewOperator< ViewPager > {
+
+        @Override
+        public Constraint onGenerateConstraint(int position, Constraint constraint) {
+
+            constraint.leftToLeftOfParent(50)
+                    .rightToRightOfParent(-50)
+                    .topToBottomOfView(position - 1, 50)
+                    .bottomToBottomOfView(position - 1, 550);
+
+            return constraint;
+        }
+
+
+        @Override
+        public ViewPager onGenerateView(int position) {
+
+            ViewPager pager = new ViewPager(MainActivity.this);
+            pager.setAdapter(new PagerAdapter());
+            return pager;
+        }
+
+
+        class PagerAdapter extends android.support.v4.view.PagerAdapter {
+
+            private String[] data = {
+                    "java",
+                    "android",
+                    "ios",
+                    "java scrip",
+                    "shell"
+            };
+
+
+            @Override
+            public int getCount() {
+
+                return 5;
+            }
+
+
+            @NonNull
+            @Override
+            public Object instantiateItem(@NonNull ViewGroup container, int position) {
+
+                TextView textView = new TextView(MainActivity.this);
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+                textView.setGravity(Gravity.CENTER);
+                textView.setBackgroundResource(R.drawable.rect);
+                textView.setText(data[position]);
+
+                container.addView(textView);
+
+                return textView;
+            }
+
+
+            @Override
+            public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+
+                return view == object;
+            }
+
+
+            @Override
+            public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+
+                container.removeView((View) object);
+            }
         }
     }
 }
