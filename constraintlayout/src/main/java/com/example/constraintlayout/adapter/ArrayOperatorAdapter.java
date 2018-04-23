@@ -8,20 +8,20 @@ import android.view.View;
 
 import com.example.constraintlayout.Constraint;
 import com.example.constraintlayout.ConstraintLayout;
-import com.example.constraintlayout.simple.ViewOperator;
+import com.example.constraintlayout.simple.ConstraintOperator;
 
 /**
- * 使用{@link ViewOperator}创建一个{@link BaseConstraintAdapter},和{@link ConstraintLayout#setUpWith(ViewOperator[])}配合使用
+ * 使用{@link ConstraintOperator}创建一个{@link BaseConstraintAdapter},和{@link ConstraintLayout#setUpWith(ConstraintOperator[])}配合使用
  *
  * @author wuxio
  */
 @SuppressWarnings("unchecked")
-public class ArrayOperatorConstraintAdapter extends BaseConstraintAdapter {
+public class ArrayOperatorAdapter extends BaseConstraintAdapter {
 
-    private ViewOperator[] mOperators;
+    private ConstraintOperator[] mOperators;
 
 
-    public ArrayOperatorConstraintAdapter(ViewOperator[] operators) {
+    public ArrayOperatorAdapter(ConstraintOperator[] operators) {
 
         mOperators = operators;
     }

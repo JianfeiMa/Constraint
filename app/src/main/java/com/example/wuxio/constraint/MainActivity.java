@@ -20,7 +20,7 @@ import com.example.constraintlayout.Constraint;
 import com.example.constraintlayout.ConstraintLayout;
 import com.example.constraintlayout.adapter.BaseConstraintAdapter;
 import com.example.constraintlayout.simple.Constraints;
-import com.example.constraintlayout.simple.ViewOperator;
+import com.example.constraintlayout.simple.ConstraintOperator;
 
 import java.util.Locale;
 
@@ -244,12 +244,12 @@ public class MainActivity extends AppCompatActivity {
 
         final int size = 22;
 
-        ViewOperator[] mOperators = new ViewOperator[size];
+        ConstraintOperator[] mOperators = new ConstraintOperator[size];
 
         private Constraint mConstraint;
 
 
-        public ViewOperator[] getOperators() {
+        public ConstraintOperator[] getOperators() {
 
             return mOperators;
         }
@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private class ParentOperator implements ViewOperator< TextView > {
+    private class ParentOperator implements ConstraintOperator< TextView > {
 
         int leftMargin;
         int topMargin;
@@ -330,7 +330,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class LeftBelowWeightOperator implements ViewOperator< TextView > {
+    private class LeftBelowWeightOperator implements ConstraintOperator< TextView > {
 
         private int position;
         private int leftMargin;
@@ -370,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class LeftCopyOperator implements ViewOperator< TextView > {
+    private class LeftCopyOperator implements ConstraintOperator< TextView > {
 
         private int position;
 
@@ -400,7 +400,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class TopCopyOperator implements ViewOperator< TextView > {
+    private class TopCopyOperator implements ConstraintOperator< TextView > {
 
         private int position;
 
@@ -430,7 +430,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class BottomOperator implements ViewOperator< TextView > {
+    private class BottomOperator implements ConstraintOperator< TextView > {
 
         @Override
         public Constraint onGenerateConstraint(int position, Constraint constraint) {
@@ -462,7 +462,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class LayoutBottomOperator implements ViewOperator< LinearLayout > {
+    private class LayoutBottomOperator implements ConstraintOperator< LinearLayout > {
 
         @Override
         public Constraint onGenerateConstraint(int position, Constraint constraint) {
@@ -490,7 +490,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class PagerOperator implements ViewOperator< ViewPager > {
+    private class PagerOperator implements ConstraintOperator< ViewPager > {
 
         @Override
         public Constraint onGenerateConstraint(int position, Constraint constraint) {

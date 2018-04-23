@@ -5,10 +5,10 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.constraintlayout.adapter.ArrayOperatorConstraintAdapter;
+import com.example.constraintlayout.adapter.ArrayOperatorAdapter;
 import com.example.constraintlayout.adapter.BaseConstraintAdapter;
-import com.example.constraintlayout.adapter.ListOperatorConstraintAdapter;
-import com.example.constraintlayout.simple.ViewOperator;
+import com.example.constraintlayout.adapter.ListOperatorAdapter;
+import com.example.constraintlayout.simple.ConstraintOperator;
 
 import java.util.List;
 
@@ -300,15 +300,15 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     /* 工具方法简化创建操作 */
 
 
-    public void setUpWith(ViewOperator[] viewOperators) {
+    public void setUpWith(ConstraintOperator[] constraintOperators) {
 
-        setAdapter(new ArrayOperatorConstraintAdapter(viewOperators));
+        setAdapter(new ArrayOperatorAdapter(constraintOperators));
     }
 
 
-    public void setUpWith(List< ViewOperator > viewOperators) {
+    public void setUpWith(List< ConstraintOperator > constraintOperators) {
 
-        setAdapter(new ListOperatorConstraintAdapter(viewOperators));
+        setAdapter(new ListOperatorAdapter(constraintOperators));
     }
 
     //============================add view============================

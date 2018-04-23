@@ -8,22 +8,22 @@ import android.view.View;
 
 import com.example.constraintlayout.Constraint;
 import com.example.constraintlayout.ConstraintLayout;
-import com.example.constraintlayout.simple.ViewOperator;
+import com.example.constraintlayout.simple.ConstraintOperator;
 
 import java.util.List;
 
 /**
- * 使用{@link ViewOperator}创建一个{@link BaseConstraintAdapter},和{@link ConstraintLayout#setUpWith(List)}配合使用
+ * 使用{@link ConstraintOperator}创建一个{@link BaseConstraintAdapter},和{@link ConstraintLayout#setUpWith(List)}配合使用
  *
  * @author wuxio
  */
 @SuppressWarnings("unchecked")
-public class ListOperatorConstraintAdapter extends BaseConstraintAdapter {
+public class ListOperatorAdapter extends BaseConstraintAdapter {
 
-    private List< ViewOperator > mOperators;
+    private List< ConstraintOperator > mOperators;
 
 
-    public ListOperatorConstraintAdapter(List< ViewOperator > operators) {
+    public ListOperatorAdapter(List< ConstraintOperator > operators) {
 
         mOperators = operators;
     }

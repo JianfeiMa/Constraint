@@ -11,7 +11,7 @@ import com.example.constraintlayout.Constraint;
  *
  * 记录对view的操作,如何约束,如何生成
  */
-public interface ViewOperator < T extends View > {
+public interface ConstraintOperator < T extends View > {
 
     /**
      * 生成一个约束,用于对应位置的view
