@@ -2,7 +2,6 @@ package com.example.constraintlayout;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -17,10 +16,19 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
     private static final String TAG = "ConstraintLayout";
 
+    /**
+     * adapter 用于使用约束布局
+     */
     private BaseAdapter mAdapter;
 
+    /**
+     * 约束
+     */
     private Constraint mConstraint;
 
+    /**
+     * 用于决定是否约束是否非法,当wrap_content时,右边约束或者底部约束不可用
+     */
     private int mParentRight;
     private int mParentBottom;
 
@@ -46,6 +54,8 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
     private void init(Context context, AttributeSet attrs) {
 
+        /* 初始化一个约束,用来复用 */
+
         mConstraint = new Constraint(this);
     }
 
@@ -61,7 +71,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
 
     /**
-     * @return new 新创建一个
+     * @return new 新创建一个,推荐使用{@link #obtainConstraint()}获取约束
      */
     public Constraint newConstraint() {
 
@@ -71,9 +81,20 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
+    /**
+     * 设置adapter
+     *
+     * @param adapter 用来布局的adapter
+     */
     public void setAdapter(BaseAdapter adapter) {
 
-        mAdapter = adapter;
+        if (mAdapter != null) {
+            mAdapter = adapter;
+            requestLayout();
+        } else {
+
+            mAdapter = adapter;
+        }
     }
 
 
@@ -91,6 +112,8 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         int heightFromParent = MeasureSpec.getSize(heightMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 
+        /* 判断右边和底边约束是否可用 */
+
         if (widthMode == MeasureSpec.EXACTLY) {
             mParentRight = widthFromParent;
         } else {
@@ -102,6 +125,8 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         } else {
             mParentBottom = -1;
         }
+
+        /* 用adapter提供的约束测量view,并且设置位置信息给view的layoutP啊让魔术,在之后的onLayout中可以直接布局简化操作 */
 
         BaseAdapter adapter = mAdapter;
         final int childCount = adapter.getChildCount();
@@ -118,15 +143,22 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
                 addView(child);
             }
 
+            /* 1. 先测量 */
+
             Constraint constraint = adapter.generateConstraintTo(i, obtainConstraint());
-            constraint.isLegal();
+            constraint.check();
             int widthSpec = constraint.makeWidthSpec();
             int heightSpec = constraint.makeHeightSpec();
             measureChild(child,
                     widthSpec,
                     heightSpec
             );
+
+            /* 2. 记录测量之后该view的位置 */
+
             LayoutParams params = setChildLayoutParams(constraint, child);
+
+            /* 记录最右边最下边已经使用到的尺寸,用于之后设置自己的尺寸 */
 
             if (params.right > mostRight) {
                 mostRight = params.right;
@@ -134,12 +166,9 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
             if (params.bottom > mostBottom) {
                 mostBottom = params.bottom;
             }
-
-            Log.i(TAG, "onMeasure:" + i + " " + constraint);
-            Log.i(TAG, "onMeasure:" + i + " " + params);
         }
 
-        Log.i(TAG, "onMeasure:most: " + mostRight + " " + mostBottom);
+        /* 根据模式设置尺寸信息 */
 
         int width = 0;
         int height = 0;
@@ -160,13 +189,12 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
             height = mostBottom;
         }
 
-        Log.i(TAG, "onMeasure:size final:" + width + " " + height);
-
         setMeasuredDimension(width, height);
     }
 
 
     /**
+     * 在{@link #onMeasure(int, int)}中调用,用来设置位置信息
      * used for set layout info
      *
      * @param constraint child's constraint
@@ -175,16 +203,20 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
      */
     private LayoutParams setChildLayoutParams(Constraint constraint, View child) {
 
-        final int min = 0;
+        final int minBias = 0;
 
         LayoutParams params = getChildLayoutParams(child);
+
+        /* 读取约束信息 */
 
         int constraintLeft = constraint.left;
         int constraintTop = constraint.top;
         int constraintRight = constraint.right;
         int constraintBottom = constraint.bottom;
 
-        if (constraint.horizontalBias == min) {
+        /* 根据水平偏移比调整 left right */
+
+        if (constraint.horizontalBias == minBias) {
 
             params.left = constraintLeft;
             params.right = params.left + child.getMeasuredWidth();
@@ -209,7 +241,9 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
             }
         }
 
-        if (constraint.verticalBias == min) {
+        /* 根据垂直偏移比调整 top bottom */
+
+        if (constraint.verticalBias == minBias) {
 
             params.top = constraintTop;
             params.bottom = params.top + child.getMeasuredHeight();
@@ -256,8 +290,9 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
             child.layout(params.left, params.top, params.right, params.bottom);
             adapter.afterLayout(i, child);
         }
-
     }
+
+    /* 工具方法简化创建操作 */
 
 
     public void setUpWith(ViewOperator[] viewOperators) {
@@ -272,19 +307,32 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
     //============================add view============================
-    
+
     /**
-     * 标记,添加删除 ExtraView 时,不重新测量布局
+     * 标记,添加删除 ExtraView 时,不重新测量布局,因为其他的view布局位置是确定的,不需要重新布局
      */
     private boolean addOrRemoveExtraView = false;
 
 
+    /**
+     * 额外添加一个view,通常是需要弹窗的情况使用
+     *
+     * @param view       额外的view
+     * @param constraint 对view的约束
+     */
     public void addExtraView(View view, Constraint constraint) {
 
         addExtraView(view, generateDefaultLayoutParams(), constraint);
     }
 
 
+    /**
+     * 额外添加一个view,通常是需要弹窗的情况使用
+     *
+     * @param view         额外的view
+     * @param layoutParams 该view布局参数
+     * @param constraint   对view的约束
+     */
     public void addExtraView(View view, LayoutParams layoutParams, Constraint constraint) {
 
         addOrRemoveExtraView = true;
@@ -304,6 +352,11 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
+    /**
+     * 移除额外添加的view,该方法没有判断移除的是否是{@link #addExtraView(View, Constraint)}添加的view
+     *
+     * @param view 一个view
+     */
     public void removeExtraView(View view) {
 
         addOrRemoveExtraView = true;
@@ -373,6 +426,10 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
      */
     public static class LayoutParams extends ViewGroup.LayoutParams {
 
+
+        /**
+         * 这几个变量记录view的布局位置,用来在{@link #onLayout(boolean, int, int, int, int)}中直接布局
+         */
         int left;
         int top;
         int right;
@@ -506,99 +563,4 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         return getChildLayoutParams(position).bottom;
     }
 
-    //============================ view operate support ============================
-
-    @SuppressWarnings("unchecked")
-    public class ArrayOperatorAdapter extends BaseAdapter {
-
-        private ViewOperator[] mOperators;
-
-
-        public ArrayOperatorAdapter(ViewOperator[] operators) {
-
-            mOperators = operators;
-        }
-
-
-        @Override
-        public Constraint generateConstraintTo(int position, Constraint constraint) {
-
-            return mOperators[position].onGenerateConstraint(position, constraint);
-        }
-
-
-        @Override
-        public View generateViewTo(int position) {
-
-            return mOperators[position].onGenerateView(position);
-        }
-
-
-        @Override
-        public int getChildCount() {
-
-            return mOperators.length;
-        }
-
-
-        @Override
-        public void beforeLayout(int position, View view) {
-
-            mOperators[position].onBeforeLayout(position, view);
-        }
-
-
-        @Override
-        public void afterLayout(int position, View view) {
-
-            mOperators[position].onAfterLayout(position, view);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public class ListOperatorAdapter extends BaseAdapter {
-
-        private List< ViewOperator > mOperators;
-
-
-        public ListOperatorAdapter(List< ViewOperator > operators) {
-
-            mOperators = operators;
-        }
-
-
-        @Override
-        public Constraint generateConstraintTo(int position, Constraint constraint) {
-
-            return mOperators.get(position).onGenerateConstraint(position, constraint);
-        }
-
-
-        @Override
-        public View generateViewTo(int position) {
-
-            return mOperators.get(position).onGenerateView(position);
-        }
-
-
-        @Override
-        public int getChildCount() {
-
-            return mOperators.size();
-        }
-
-
-        @Override
-        public void beforeLayout(int position, View view) {
-
-            mOperators.get(position).onBeforeLayout(position, view);
-        }
-
-
-        @Override
-        public void afterLayout(int position, View view) {
-
-            mOperators.get(position).onAfterLayout(position, view);
-        }
-    }
 }

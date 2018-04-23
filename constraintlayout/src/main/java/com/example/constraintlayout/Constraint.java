@@ -5,9 +5,7 @@ package com.example.constraintlayout;
  */
 
 import android.graphics.Rect;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.Locale;
 
@@ -28,9 +26,16 @@ public class Constraint {
     int top;
     int right;
     int bottom;
+
+    /**
+     * 水平/竖直方向有剩余空间时,偏移比
+     */
     float horizontalBias = 0f;
     float verticalBias   = 0f;
 
+    /**
+     * 一个支持约束的布局
+     */
     private ConstraintSupport mParent;
 
 
@@ -48,15 +53,14 @@ public class Constraint {
     }
 
 
-    Constraint(ConstraintSupport parent) {
+    /**
+     * 不要自己创建,使用{@link ConstraintLayout#obtainConstraint()}获取空白约束
+     *
+     * @param parent 实现{@link ConstraintSupport}接口的布局
+     */
+    public Constraint(ConstraintSupport parent) {
 
         this.mParent = parent;
-    }
-
-
-    public ViewGroup getParent() {
-
-        return (ViewGroup) mParent;
     }
 
 
@@ -104,6 +108,8 @@ public class Constraint {
         verticalBias = 0f;
     }
 
+    //============================偏移============================
+
 
     /**
      * 设置水平偏移量
@@ -148,123 +154,6 @@ public class Constraint {
 
         this.verticalBias = verticalBias;
         return this;
-    }
-
-    //============================生成spec============================
-
-
-    public boolean isLegal() {
-
-        boolean b = right >= left && bottom >= top;
-
-        if (!b) {
-            String message = " right must >= left, bottom must >= top, current is: left=%d ," +
-                    "top=%d ,right=%d , bottom=%d";
-            String format = String.format(Locale.CHINA, message, left, top, right, bottom);
-            throw new RuntimeException(format);
-        }
-
-        return b;
-    }
-
-
-    public int makeWidthSpec() {
-
-        if (left < right) {
-            return View.MeasureSpec.makeMeasureSpec(right - left, View.MeasureSpec.EXACTLY);
-        }
-
-        return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY);
-    }
-
-
-    public int makeHeightSpec() {
-
-        if (bottom > top) {
-            return View.MeasureSpec.makeMeasureSpec(bottom - top, View.MeasureSpec.EXACTLY);
-        }
-
-        return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY);
-    }
-
-    //============================right bottom check============================
-
-
-    private void checkParentRight() {
-
-        if (mParent.getParentRight() == -1) {
-            throw new RuntimeException(" you can't constraint to parent right when parent width is not " +
-                    "match_parent or a exactly dimensions ");
-        }
-    }
-
-
-    private void checkParentBottom() {
-
-        if (mParent.getParentBottom() == -1) {
-            throw new RuntimeException(" you can't constraint to parent bottom when parent height is not " +
-                    "match_parent or a exactly dimensions ");
-        }
-    }
-
-    //============================weight support============================
-
-
-    public int getWeightWidth(int base, int weight) {
-
-        return getWeightWidth(base, weight, 0);
-    }
-
-
-    public int getWeightWidth(int base, int weight, int usedWidth) {
-
-        int parentRight = mParent.getParentRight();
-
-        if (parentRight == -1) {
-            throw new RuntimeException(" can't get weight Width, because width is not exactly ");
-        }
-
-        Log.i(TAG, "getWeightWidth:" + parentRight);
-
-        int useableWidth = parentRight - mParent.getParentLeft() - usedWidth;
-
-        int cellWidth = (int) (useableWidth * 1f / base);
-
-        return weight * cellWidth;
-    }
-
-
-    public int getWeightHeight(int base, int weight) {
-
-        return getWeightHeight(base, weight, 0);
-    }
-
-
-    public int getWeightHeight(int base, int weight, int usedHeight) {
-
-        int parentBottom = mParent.getParentBottom();
-
-        if (parentBottom == -1) {
-            throw new RuntimeException(" can't get weight Height, because Height is not exactly ");
-        }
-
-        int useableHeight = parentBottom - mParent.getParentTop() - usedHeight;
-
-        int cellHeight = (int) (useableHeight * 1f / base) + 1;
-
-        return weight * cellHeight;
-    }
-
-
-    public int getViewWidth(int position) {
-
-        return mParent.getViewRight(position) - mParent.getViewLeft(position);
-    }
-
-
-    public int getViewHeight(int position) {
-
-        return mParent.getViewBottom(position) - mParent.getViewTop(position);
     }
 
     //============================约束至Parent============================
@@ -731,6 +620,12 @@ public class Constraint {
     }
 
 
+    /**
+     * x方向平移约束
+     *
+     * @param offset 偏移量
+     * @return 偏移后的约束
+     */
     public Constraint translateX(int offset) {
 
         left += offset;
@@ -739,6 +634,12 @@ public class Constraint {
     }
 
 
+    /**
+     * y方向平移约束
+     *
+     * @param offset 偏移量
+     * @return 偏移后的约束
+     */
     public Constraint translateY(int offset) {
 
         top += offset;
@@ -747,6 +648,15 @@ public class Constraint {
     }
 
 
+    /**
+     * 移动约束
+     *
+     * @param leftOffset   左边约束移动偏移量
+     * @param topOffset    上边约束移动偏移量
+     * @param rightOffset  右边约束移动偏移量
+     * @param bottomOffset 下边约束移动偏移量
+     * @return 移动后的约束
+     */
     public Constraint translate(int leftOffset, int topOffset, int rightOffset, int bottomOffset) {
 
         left += leftOffset;
@@ -755,4 +665,181 @@ public class Constraint {
         bottom += bottomOffset;
         return this;
     }
+
+    //============================生成spec============================
+
+
+    /**
+     * 检查该约束是否合法,合法:right>=left && bottom>=top
+     */
+    public void check() {
+
+        boolean legal = right >= left && bottom >= top;
+
+        if (!legal) {
+            String message = " right must >= left, bottom must >= top, current is: left=%d ," +
+                    "top=%d ,right=%d , bottom=%d";
+            String format = String.format(Locale.CHINA, message, left, top, right, bottom);
+            throw new RuntimeException(format);
+        }
+    }
+
+
+    /**
+     * 根据约束生成一个measureSpec
+     *
+     * @return 宽度Spec, 用于测量view
+     */
+    public int makeWidthSpec() {
+
+        if (left < right) {
+            return View.MeasureSpec.makeMeasureSpec(right - left, View.MeasureSpec.EXACTLY);
+        }
+
+        return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY);
+    }
+
+
+    /**
+     * 根据约束生成一个measureSpec
+     *
+     * @return 高度Spec, 用于测量view
+     */
+    public int makeHeightSpec() {
+
+        if (bottom > top) {
+            return View.MeasureSpec.makeMeasureSpec(bottom - top, View.MeasureSpec.EXACTLY);
+        }
+
+        return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY);
+    }
+
+    //============================right bottom check============================
+
+
+    /**
+     * 如果父布局宽度是wrap_content,而你又约束到父布局右边,此时父布局的右边坐标是未知的;
+     * 需要全部view测量之后才有坐标,而现在又需要坐标才能测量,矛盾
+     */
+    private void checkParentRight() {
+
+        if (mParent.getParentRight() == -1) {
+            throw new RuntimeException(" you can't constraint to parent right when parent width is not " +
+                    "match_parent or a exactly dimensions ");
+        }
+    }
+
+
+    /**
+     * 如果父布局高度是wrap_content,而你又约束到父布局底边,此时父布局的底边坐标是未知的;
+     * 需要全部view测量之后才有坐标,而现在又需要坐标才能测量,矛盾
+     */
+    private void checkParentBottom() {
+
+        if (mParent.getParentBottom() == -1) {
+            throw new RuntimeException(" you can't constraint to parent bottom when parent height is not " +
+                    "match_parent or a exactly dimensions ");
+        }
+    }
+
+    //============================weight support============================
+
+
+    /**
+     * 获取权重宽度,总宽度时父布局宽度
+     *
+     * @param base   总权重
+     * @param weight 权重
+     * @return 根据权重/总权重得到的宽度
+     */
+    public int getWeightWidth(int base, int weight) {
+
+        return getWeightWidth(base, weight, 0);
+    }
+
+
+    /**
+     * 获取权重宽度,会减去已经使用的宽度,在计算
+     *
+     * @param base      总权重
+     * @param weight    权重
+     * @param usedWidth 已经使用的宽度
+     * @return 根据权重/总权重得到的宽度
+     */
+    public int getWeightWidth(int base, int weight, int usedWidth) {
+
+        int parentRight = mParent.getParentRight();
+
+        if (parentRight == -1) {
+            throw new RuntimeException(" can't get weight Width, because width is not exactly ");
+        }
+
+        int useableWidth = parentRight - mParent.getParentLeft() - usedWidth;
+
+        int cellWidth = (int) (useableWidth * 1f / base);
+
+        return weight * cellWidth;
+    }
+
+
+    /**
+     * 获取权重高度
+     *
+     * @param base   总权重
+     * @param weight 权重
+     * @return 根据权重/总权重得到的高度
+     */
+    public int getWeightHeight(int base, int weight) {
+
+        return getWeightHeight(base, weight, 0);
+    }
+
+
+    /**
+     * 获取权重宽度,会减去已经使用的宽度,在计算
+     *
+     * @param base       总权重
+     * @param weight     权重
+     * @param usedHeight 已经使用的高度
+     * @return 根据权重/总权重得到的宽度
+     */
+    public int getWeightHeight(int base, int weight, int usedHeight) {
+
+        int parentBottom = mParent.getParentBottom();
+
+        if (parentBottom == -1) {
+            throw new RuntimeException(" can't get weight Height, because Height is not exactly ");
+        }
+
+        int useableHeight = parentBottom - mParent.getParentTop() - usedHeight;
+
+        int cellHeight = (int) (useableHeight * 1f / base) + 1;
+
+        return weight * cellHeight;
+    }
+
+
+    /**
+     * 得到一个view的宽度
+     *
+     * @param position 布局位置
+     * @return 该位置的view的宽度
+     */
+    public int getViewWidth(int position) {
+
+        return mParent.getViewRight(position) - mParent.getViewLeft(position);
+    }
+
+
+    /**
+     * 得到一个view的高度
+     *
+     * @param position 布局位置
+     * @return 该位置的view的高度
+     */
+    public int getViewHeight(int position) {
+
+        return mParent.getViewBottom(position) - mParent.getViewTop(position);
+    }
+
 }

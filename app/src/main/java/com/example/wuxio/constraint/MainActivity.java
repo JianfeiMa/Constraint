@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -32,43 +31,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mConstraintLayout = findViewById(R.id.constraintLayout);
-        ViewOperator[] operators = new Operators(mConstraintLayout.obtainConstraint()).getOperators();
-        mConstraintLayout.setUpWith(operators);
 
-        final TextView child = new TextView(MainActivity.this);
-
-        mConstraintLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                child.setBackgroundColor(getResources().getColor(R.color.beige));
-                Constraint constraint = mConstraintLayout.obtainConstraint();
-                constraint.leftToLeftOfParent(300).rightToRightOfParent(-300).topToTopOfParent(50, 200);
-
-                mConstraintLayout.addExtraView(child, constraint);
-            }
-        }, 5000);
-
-        mConstraintLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mConstraintLayout.removeExtraView(child);
-            }
-        }, 10000);
-
-        RecyclerView recyclerView = new RecyclerView(MainActivity.this);
-        recyclerView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-            @Override
-            public void onViewAttachedToWindow(View v) {
-
-            }
-
-
-            @Override
-            public void onViewDetachedFromWindow(View v) {
-
-            }
-        });
     }
 
 
