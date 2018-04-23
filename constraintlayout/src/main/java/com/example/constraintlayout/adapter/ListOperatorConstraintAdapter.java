@@ -1,7 +1,7 @@
 package com.example.constraintlayout.adapter;
 
 /**
- * @author wuxio 2018-04-23:15:12
+ * @author wuxio 2018-04-23:15:13
  */
 
 import android.view.View;
@@ -10,18 +10,20 @@ import com.example.constraintlayout.Constraint;
 import com.example.constraintlayout.ConstraintLayout;
 import com.example.constraintlayout.simple.ViewOperator;
 
+import java.util.List;
+
 /**
- * 使用{@link ViewOperator}创建一个{@link BaseAdapter},和{@link ConstraintLayout#setUpWith(ViewOperator[])}配合使用
+ * 使用{@link ViewOperator}创建一个{@link BaseConstraintAdapter},和{@link ConstraintLayout#setUpWith(List)}配合使用
  *
  * @author wuxio
  */
 @SuppressWarnings("unchecked")
-public class ArrayOperatorAdapter extends BaseAdapter {
+public class ListOperatorConstraintAdapter extends BaseConstraintAdapter {
 
-    private ViewOperator[] mOperators;
+    private List< ViewOperator > mOperators;
 
 
-    public ArrayOperatorAdapter(ViewOperator[] operators) {
+    public ListOperatorConstraintAdapter(List< ViewOperator > operators) {
 
         mOperators = operators;
     }
@@ -30,34 +32,34 @@ public class ArrayOperatorAdapter extends BaseAdapter {
     @Override
     public Constraint generateConstraintTo(int position, Constraint constraint) {
 
-        return mOperators[position].onGenerateConstraint(position, constraint);
+        return mOperators.get(position).onGenerateConstraint(position, constraint);
     }
 
 
     @Override
     public View generateViewTo(int position) {
 
-        return mOperators[position].onGenerateView(position);
+        return mOperators.get(position).onGenerateView(position);
     }
 
 
     @Override
     public int getChildCount() {
 
-        return mOperators.length;
+        return mOperators.size();
     }
 
 
     @Override
     public void beforeLayout(int position, View view) {
 
-        mOperators[position].onBeforeLayout(position, view);
+        mOperators.get(position).onBeforeLayout(position, view);
     }
 
 
     @Override
     public void afterLayout(int position, View view) {
 
-        mOperators[position].onAfterLayout(position, view);
+        mOperators.get(position).onAfterLayout(position, view);
     }
 }

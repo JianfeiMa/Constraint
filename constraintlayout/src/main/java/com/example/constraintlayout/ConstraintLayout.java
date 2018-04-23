@@ -5,9 +5,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.constraintlayout.adapter.ArrayOperatorAdapter;
-import com.example.constraintlayout.adapter.BaseAdapter;
-import com.example.constraintlayout.adapter.ListOperatorAdapter;
+import com.example.constraintlayout.adapter.ArrayOperatorConstraintAdapter;
+import com.example.constraintlayout.adapter.BaseConstraintAdapter;
+import com.example.constraintlayout.adapter.ListOperatorConstraintAdapter;
 import com.example.constraintlayout.simple.ViewOperator;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     /**
      * adapter 用于使用约束布局
      */
-    private BaseAdapter mAdapter;
+    private BaseConstraintAdapter mAdapter;
 
     /**
      * 约束
@@ -91,7 +91,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
      *
      * @param adapter 用来布局的adapter
      */
-    public void setAdapter(BaseAdapter adapter) {
+    public void setAdapter(BaseConstraintAdapter adapter) {
 
         if (mAdapter != null) {
             mAdapter = adapter;
@@ -103,7 +103,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
-    public BaseAdapter getAdapter() {
+    public BaseConstraintAdapter getAdapter() {
 
         return mAdapter;
     }
@@ -133,9 +133,9 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
         /* 用adapter提供的约束测量view,并且设置位置信息给view的layoutP啊让魔术,在之后的onLayout中可以直接布局简化操作 */
 
-        BaseAdapter adapter = mAdapter;
-        final int childCount = adapter.getChildCount();
+        BaseConstraintAdapter adapter = mAdapter;
 
+        final int childCount = adapter.getChildCount();
         int mostRight = 0;
         int mostBottom = 0;
 
@@ -280,7 +280,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
-        BaseAdapter adapter = mAdapter;
+        BaseConstraintAdapter adapter = mAdapter;
         int count = adapter.getChildCount();
         for (int i = 0; i < count; i++) {
 
@@ -302,13 +302,13 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
     public void setUpWith(ViewOperator[] viewOperators) {
 
-        setAdapter(new ArrayOperatorAdapter(viewOperators));
+        setAdapter(new ArrayOperatorConstraintAdapter(viewOperators));
     }
 
 
     public void setUpWith(List< ViewOperator > viewOperators) {
 
-        setAdapter(new ListOperatorAdapter(viewOperators));
+        setAdapter(new ListOperatorConstraintAdapter(viewOperators));
     }
 
     //============================add view============================
@@ -370,12 +370,18 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
+    public void setToRelayout(boolean isToRelayout) {
+
+    }
+
+
     @Override
     public void requestLayout() {
 
         if (addOrRemoveExtraView) {
             return;
         }
+
         super.requestLayout();
     }
 
@@ -567,5 +573,4 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
         return getChildLayoutParams(position).bottom;
     }
-
 }

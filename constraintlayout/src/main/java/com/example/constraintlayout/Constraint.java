@@ -694,9 +694,9 @@ public class Constraint {
 
         if (left < right) {
             return View.MeasureSpec.makeMeasureSpec(right - left, View.MeasureSpec.EXACTLY);
+        } else {
+            return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY);
         }
-
-        return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY);
     }
 
 
@@ -709,9 +709,9 @@ public class Constraint {
 
         if (bottom > top) {
             return View.MeasureSpec.makeMeasureSpec(bottom - top, View.MeasureSpec.EXACTLY);
+        } else {
+            return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY);
         }
-
-        return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY);
     }
 
     //============================right bottom check============================

@@ -1,9 +1,11 @@
 package com.example.wuxio.constraint;
 
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -12,14 +14,22 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.banner.adapter.BasePagerAdapter;
+import com.example.banner.pager.LoopViewPager;
 import com.example.constraintlayout.Constraint;
 import com.example.constraintlayout.ConstraintLayout;
+import com.example.constraintlayout.adapter.BaseConstraintAdapter;
+import com.example.constraintlayout.simple.Constraints;
 import com.example.constraintlayout.simple.ViewOperator;
+
+import java.util.Locale;
 
 /**
  * @author wuxio
  */
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
 
     private ConstraintLayout mConstraintLayout;
 
@@ -31,7 +41,200 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mConstraintLayout = findViewById(R.id.constraintLayout);
+        mConstraintLayout.setAdapter(new MainConstraintConstraintAdapter());
 
+    }
+
+
+    private class MainConstraintConstraintAdapter extends BaseConstraintAdapter {
+
+        final int size = 12;
+
+
+        @Override
+        public Constraint generateConstraintTo(int position, Constraint constraint) {
+
+            if (position == 0) {
+                Constraints.matchParentWidth(constraint, 0, 500);
+                return constraint;
+            }
+            if (position == 1) {
+                Constraints.matchParentWidthAtBottomOfView(constraint, 0, 10, 100);
+                return constraint;
+            }
+
+            if (position == 2) {
+                int size = constraint.getWeightWidth(4, 1);
+                Constraints.atBottomOfView(constraint, 1, 0, 10, size, size);
+                return constraint;
+            }
+
+            if (position <= 5) {
+                Constraints.copyToRight(constraint, position - 1);
+                return constraint;
+            }
+
+            if (position == 6) {
+                int size = constraint.getWeightWidth(3, 1, 10 * 2);
+                Constraints.atBottomOfView(constraint, 2, 0, 10, size, size);
+                return constraint;
+            }
+
+            if (position <= 8) {
+                Constraints.copyToRight(constraint, position - 1, 10);
+                return constraint;
+            }
+
+            if (position == 9) {
+
+                /* 因为该view是wrap content 所以宽度高度不重要,只要是比view大就行*/
+
+                Constraints.atBottomOfView(constraint, 8, 10, 10, 1500, 1500);
+            }
+
+            if (position == 10) {
+                Constraints.atBottomOfView(constraint, 9, 10, 10, 1500, 1500);
+            }
+
+            if (position == 11) {
+                Constraints.atBottomOfView(constraint, 10, 10, 10, 1500, 1500);
+            }
+
+            if (position == 12) {
+
+            }
+
+            return constraint;
+        }
+
+
+        @Override
+        public View generateViewTo(int position) {
+
+            if (position == 0) {
+                return getPager();
+            }
+
+            if (position == 9) {
+                return getTextView("Test text 1", 12, getResources().getColor(R.color.deeppink));
+            }
+
+            if (position == 10) {
+                return getTextView("Test text 2", 24, getResources().getColor(R.color.deeppink));
+            }
+
+            if (position == 11) {
+                return getTextView("Test text 3", 18, getResources().getColor(R.color.deeppink));
+            }
+
+            if (position < size) {
+                return getTextView(position);
+            }
+            return null;
+        }
+
+
+        @Override
+        public int getChildCount() {
+
+            return size;
+        }
+
+
+        @Override
+        public void beforeLayout(int position, View view) {
+
+            super.beforeLayout(position, view);
+            if (position == 9) {
+                ViewGroup.LayoutParams params = view.getLayoutParams();
+                Log.i(TAG, "beforeLayout: 9: " + params);
+                Log.i(TAG, "beforeLayout: 9: " + params.width);
+                Log.i(TAG, "beforeLayout: 9: " + params.height);
+                Log.i(TAG, "beforeLayout: 9: " + view.getMeasuredWidth());
+                Log.i(TAG, "beforeLayout: 9: " + view.getMeasuredHeight());
+            }
+        }
+    }
+
+
+    private TextView getTextView(int i) {
+
+        TextView textView = new TextView(MainActivity.this);
+        textView.setText(String.valueOf(i));
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+        textView.setGravity(Gravity.CENTER);
+        textView.setBackgroundColor(getResources().getColor(R.color.orange));
+
+        return textView;
+    }
+
+
+    private TextView getTextView(int i, @ColorInt int color) {
+
+        TextView textView = new TextView(MainActivity.this);
+        textView.setText(String.valueOf(i));
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+        textView.setGravity(Gravity.CENTER);
+        textView.setBackgroundColor(color);
+
+        return textView;
+    }
+
+
+    private TextView getTextView(String text, int textSize, @ColorInt int color) {
+
+        TextView textView = (TextView) getLayoutInflater().inflate(R.layout.item_text_2, mConstraintLayout,
+                false);
+        textView.setText(text);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+        textView.setGravity(Gravity.CENTER);
+        textView.setBackgroundColor(color);
+
+        return textView;
+    }
+
+
+    private LoopViewPager getPager() {
+
+        final int size = 5;
+        int[] colors = {
+                getResources().getColor(R.color.violet),
+                getResources().getColor(R.color.plum),
+                getResources().getColor(R.color.lavender),
+                getResources().getColor(R.color.darkseagreen),
+                getResources().getColor(R.color.skyblue),
+        };
+        LoopViewPager pager = new LoopViewPager(MainActivity.this);
+        pager.setAdapter(new BasePagerAdapter< String, TextView >() {
+            @Override
+            public int getCount() {
+
+                return size;
+            }
+
+
+            @Override
+            public String getData(int i) {
+
+                return String.format(Locale.CHINA, "loop data %d", i);
+            }
+
+
+            @Override
+            public TextView getView(int i) {
+
+                return getTextView(i, colors[i]);
+            }
+
+
+            @Override
+            public void bindData(int i, String s, TextView view) {
+
+                view.setText(s);
+            }
+        });
+
+        return pager;
     }
 
 

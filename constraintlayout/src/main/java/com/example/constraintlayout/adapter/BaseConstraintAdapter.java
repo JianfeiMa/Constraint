@@ -9,7 +9,7 @@ import com.example.constraintlayout.Constraint;
  *
  * @author wuxio
  */
-public abstract class BaseAdapter {
+public abstract class BaseConstraintAdapter {
 
     /**
      * 为该布局位置生成一个约束
