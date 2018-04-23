@@ -1,6 +1,8 @@
-package com.example.constraintlayout;
+package com.example.constraintlayout.adapter;
 
 import android.view.View;
+
+import com.example.constraintlayout.Constraint;
 
 /**
  * Created by LiuJin on 2018-04-03:9:59

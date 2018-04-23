@@ -1,10 +1,14 @@
-package com.example.constraintlayout;
+package com.example.constraintlayout.adapter;
 
 /**
  * @author wuxio 2018-04-23:15:12
  */
 
 import android.view.View;
+
+import com.example.constraintlayout.Constraint;
+import com.example.constraintlayout.ConstraintLayout;
+import com.example.constraintlayout.simple.ViewOperator;
 
 /**
  * 使用{@link ViewOperator}创建一个{@link BaseAdapter},和{@link ConstraintLayout#setUpWith(ViewOperator[])}配合使用

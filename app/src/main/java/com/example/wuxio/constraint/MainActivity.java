@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.example.constraintlayout.Constraint;
 import com.example.constraintlayout.ConstraintLayout;
-import com.example.constraintlayout.ViewOperator;
+import com.example.constraintlayout.simple.ViewOperator;
 
 /**
  * @author wuxio

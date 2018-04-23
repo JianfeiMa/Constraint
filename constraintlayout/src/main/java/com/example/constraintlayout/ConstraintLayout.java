@@ -5,6 +5,11 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.constraintlayout.adapter.ArrayOperatorAdapter;
+import com.example.constraintlayout.adapter.BaseAdapter;
+import com.example.constraintlayout.adapter.ListOperatorAdapter;
+import com.example.constraintlayout.simple.ViewOperator;
+
 import java.util.List;
 
 /**
