@@ -19,8 +19,8 @@ import com.example.banner.pager.LoopViewPager;
 import com.example.constraintlayout.Constraint;
 import com.example.constraintlayout.ConstraintLayout;
 import com.example.constraintlayout.adapter.BaseConstraintAdapter;
-import com.example.constraintlayout.simple.Constraints;
 import com.example.constraintlayout.simple.ConstraintOperator;
+import com.example.constraintlayout.simple.Constraints;
 
 import java.util.Locale;
 
@@ -42,7 +42,14 @@ public class MainActivity extends AppCompatActivity {
 
         mConstraintLayout = findViewById(R.id.constraintLayout);
         mConstraintLayout.setAdapter(new MainConstraintConstraintAdapter());
+        mConstraintLayout.setOnRelayoutListener(new ConstraintLayout.OnRelayoutListener() {
 
+            @Override
+            public int onReLayout(ConstraintLayout layout) {
+
+                return 0;
+            }
+        });
     }
 
 

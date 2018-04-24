@@ -21,6 +21,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
     private static final String TAG = "ConstraintLayout";
 
+
     /**
      * adapter 用于使用约束布局
      */
@@ -36,6 +37,13 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
      */
     private int mParentRight;
     private int mParentBottom;
+
+    /**
+     * 标记是否需要全部更新布局
+     */
+    private boolean allRelayout = true;
+
+    private OnRelayoutListener mOnRelayoutListener;
 
 
     public ConstraintLayout(Context context) {
@@ -370,19 +378,183 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
-    public void setToRelayout(boolean isToRelayout) {
+    public void setAllRelayout(boolean allRelayout) {
 
+        this.allRelayout = allRelayout;
     }
 
 
     @Override
     public void requestLayout() {
 
+        /* 额外添加删除view时不重新布局 */
+
         if (addOrRemoveExtraView) {
             return;
         }
 
-        super.requestLayout();
+        /* 只有用户设置了 allRelayout 才重新布局*/
+
+        if (allRelayout) {
+
+            super.requestLayout();
+            allRelayout = false;
+            return;
+        }
+
+        /* 该方法发生调用时,询问用户是哪个需要重新布局 */
+
+        if (mOnRelayoutListener != null) {
+            int position = mOnRelayoutListener.onReLayout(this);
+
+            /* -1 将更新全部view */
+            if (position == -1) {
+                super.requestLayout();
+                return;
+            }
+
+            /* 更新单独一个view */
+
+            View view = getChildAt(position);
+
+            if (view == null) {
+                return;
+            }
+
+            boolean needNewConstraint = mOnRelayoutListener.needNewConstraint(position, view);
+            Constraint constraint;
+            if (needNewConstraint) {
+
+                /* 需要新的约束 */
+
+                constraint = mOnRelayoutListener.newConstraint(position, view, obtainConstraint());
+            } else {
+
+                /* 使用旧的约束 */
+
+                constraint = mAdapter.generateConstraintTo(position, obtainConstraint());
+            }
+
+            /* 重新布局该view */
+
+            LayoutParams params = reMeasureView(position, view, constraint);
+            reLayoutView(position, view, params);
+        }
+    }
+
+
+    private LayoutParams reMeasureView(int position, View view, Constraint constraint) {
+
+
+        /* 1. 先测量 */
+
+        constraint.check();
+        int widthSpec = constraint.makeWidthSpec();
+        int heightSpec = constraint.makeHeightSpec();
+        measureChild(
+                view,
+                widthSpec,
+                heightSpec
+        );
+
+        /* 2. 记录测量之后该view的位置 */
+
+        return setChildLayoutParams(constraint, view);
+    }
+
+
+    private void reLayoutView(int position, View view, LayoutParams params) {
+
+        mAdapter.beforeLayout(position, view);
+        view.layout(params.left, params.top, params.right, params.bottom);
+        mAdapter.afterLayout(position, view);
+    }
+
+
+    public int findLayoutPosition(View view) {
+
+        int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = getChildAt(i);
+            if (child == view) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    //============================ 更新一个约束 ============================
+
+
+    public void updateViewConstraint(int position, Constraint constraint) {
+
+        View view = getChildAt(position);
+        if (view == null) {
+            return;
+        }
+        updateViewConstraint(position, view, constraint);
+    }
+
+
+    public void updateViewConstraint(View view, Constraint constraint) {
+
+        int position = findLayoutPosition(view);
+        updateViewConstraint(position, view, constraint);
+    }
+
+
+    public void updateViewConstraint(int position, View view, Constraint constraint) {
+
+        LayoutParams params = reMeasureView(position, view, constraint);
+        reLayoutView(position, view, params);
+    }
+
+    //============================ relayout quest ============================
+
+    /**
+     * 当{@link #requestLayout()}调用时会回调该接口,用来询问用户哪个view需要更新
+     */
+    public interface OnRelayoutListener {
+
+        /**
+         * 询问用户哪个view需要重新布局
+         *
+         * @param layout parent
+         * @return 需要更新的view的布局位置, 返回-1将会更新全部
+         */
+        int onReLayout(ConstraintLayout layout);
+
+        /**
+         * 是否需要新的约束
+         *
+         * @param position 布局位置
+         * @param view     returned by {@link #onReLayout(ConstraintLayout)}
+         * @return true需要新的约束
+         */
+        default boolean needNewConstraint(int position, View view) {
+
+            return false;
+        }
+
+        /**
+         * 如果{@link #needNewConstraint(int, View)}返回true,将会回调,生成新的约束
+         *
+         * @param position   布局位置
+         * @param view       该位置的view
+         * @param constraint 空白约束
+         * @return 新约束
+         */
+        default Constraint newConstraint(int position, View view, Constraint constraint) {
+
+            return constraint;
+        }
+    }
+
+
+    public void setOnRelayoutListener(OnRelayoutListener onRelayoutListener) {
+
+        mOnRelayoutListener = onRelayoutListener;
     }
 
     //============================Layout Params============================
