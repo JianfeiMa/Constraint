@@ -1,17 +1,16 @@
 package com.example.wuxio.constraint;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.banner.adapter.BasePagerAdapter;
@@ -19,7 +18,6 @@ import com.example.banner.pager.LoopViewPager;
 import com.example.constraintlayout.Constraint;
 import com.example.constraintlayout.ConstraintLayout;
 import com.example.constraintlayout.adapter.BaseConstraintAdapter;
-import com.example.constraintlayout.simple.ConstraintOperator;
 import com.example.constraintlayout.simple.Constraints;
 
 import java.util.Locale;
@@ -29,7 +27,13 @@ import java.util.Locale;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
+    public static void start(Context context) {
+
+        Intent starter = new Intent(context, MainActivity.class);
+        context.startActivity(starter);
+    }
+
+    //private static final String TAG = "MainActivity";
 
     private ConstraintLayout mConstraintLayout;
 
@@ -45,9 +49,18 @@ public class MainActivity extends AppCompatActivity {
         mConstraintLayout.setOnRelayoutListener(new ConstraintLayout.OnRelayoutListener() {
 
             @Override
-            public int onReLayout(ConstraintLayout layout) {
+            public boolean onRemeasure(ConstraintLayout layout) {
 
-                return 0;
+                layout.reMeasureView(0);
+                return false;
+            }
+
+
+            @Override
+            public boolean onRelayout(ConstraintLayout layout) {
+
+                layout.reLayoutView(0);
+                return false;
             }
         });
     }
@@ -149,21 +162,6 @@ public class MainActivity extends AppCompatActivity {
 
             return size;
         }
-
-
-        @Override
-        public void beforeLayout(int position, View view) {
-
-            super.beforeLayout(position, view);
-            if (position == 9) {
-                ViewGroup.LayoutParams params = view.getLayoutParams();
-                Log.i(TAG, "beforeLayout: 9: " + params);
-                Log.i(TAG, "beforeLayout: 9: " + params.width);
-                Log.i(TAG, "beforeLayout: 9: " + params.height);
-                Log.i(TAG, "beforeLayout: 9: " + view.getMeasuredWidth());
-                Log.i(TAG, "beforeLayout: 9: " + view.getMeasuredHeight());
-            }
-        }
     }
 
 
@@ -248,327 +246,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private class Operators {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
 
-        private static final String TAG = "Operators";
-
-        final int size = 22;
-
-        ConstraintOperator[] mOperators = new ConstraintOperator[size];
-
-        private Constraint mConstraint;
-
-
-        public ConstraintOperator[] getOperators() {
-
-            return mOperators;
-        }
-
-
-        public Operators(Constraint constraint) {
-
-            mConstraint = constraint;
-
-            mOperators[0] = new ParentOperator(10, 10, 10, 400);
-
-            mOperators[1] = new LeftBelowWeightOperator(0, 20, 20, 5);
-            mOperators[2] = new LeftCopyOperator(1);
-            mOperators[3] = new LeftCopyOperator(2);
-            mOperators[4] = new LeftCopyOperator(3);
-            mOperators[5] = new LeftCopyOperator(4);
-
-            mOperators[6] = new TopCopyOperator(1);
-            mOperators[7] = new LeftCopyOperator(6);
-            mOperators[8] = new LeftCopyOperator(7);
-            mOperators[9] = new LeftCopyOperator(8);
-            mOperators[10] = new LeftCopyOperator(9);
-
-            for (int i = 11; i < 20; i++) {
-                mOperators[i] = new BottomOperator();
-            }
-
-            mOperators[20] = new LayoutBottomOperator();
-            mOperators[21] = new PagerOperator();
-        }
-
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.to_main2, menu);
+        return true;
     }
 
-    private class ParentOperator implements ConstraintOperator< TextView > {
 
-        int leftMargin;
-        int topMargin;
-        int rightMargin;
-        int height;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
 
-
-        public ParentOperator(int leftMargin, int topMargin, int rightMargin, int height) {
-
-            this.leftMargin = leftMargin;
-            this.topMargin = topMargin;
-            this.rightMargin = rightMargin;
-            this.height = height;
+        if (item.getItemId() == R.id.toMain2) {
+            Main2Activity.start(MainActivity.this);
+            return true;
         }
 
-
-        @Override
-        public Constraint onGenerateConstraint(int position, Constraint constraint) {
-
-            constraint.leftToLeftOfParent(leftMargin)
-                    .rightToRightOfParent(-rightMargin)
-                    .topToTopOfParent(topMargin)
-                    .bottomToTopOfParent(topMargin + height);
-
-            return constraint;
-        }
-
-
-        @Override
-        public TextView onGenerateView(int position) {
-
-            TextView textView = new TextView(MainActivity.this);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-            textView.setGravity(Gravity.CENTER);
-            textView.setBackgroundResource(R.drawable.rect);
-            return textView;
-        }
-
-
-        @Override
-        public void onBeforeLayout(int position, TextView v) {
-
-            v.setText(String.valueOf(position));
-        }
+        return super.onOptionsItemSelected(item);
     }
 
-    private class LeftBelowWeightOperator implements ConstraintOperator< TextView > {
-
-        private int position;
-        private int leftMargin;
-        private int topMargin;
-        private int base;
-
-
-        public LeftBelowWeightOperator(int position, int leftMargin, int topMargin, int base) {
-
-            this.position = position;
-            this.leftMargin = leftMargin;
-            this.topMargin = topMargin;
-            this.base = base;
-        }
-
-
-        @Override
-        public Constraint onGenerateConstraint(int position, Constraint constraint) {
-
-            int size = constraint.getWeightWidth(base, 1, (base + 1) * 20);
-
-            constraint.leftToLeftOfParent(leftMargin, size)
-                    .topToBottomOfView(this.position, topMargin, size);
-
-            return constraint;
-        }
-
-
-        @Override
-        public TextView onGenerateView(int position) {
-
-            TextView textView = new TextView(MainActivity.this);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-            textView.setGravity(Gravity.CENTER);
-            textView.setBackgroundResource(R.drawable.circle);
-            return textView;
-        }
-    }
-
-    private class LeftCopyOperator implements ConstraintOperator< TextView > {
-
-        private int position;
-
-
-        public LeftCopyOperator(int position) {
-
-            this.position = position;
-        }
-
-
-        @Override
-        public Constraint onGenerateConstraint(int position, Constraint constraint) {
-
-            constraint.copyFrom(this.position).translateX(constraint.getViewWidth(this.position) + 20);
-            return constraint;
-        }
-
-
-        @Override
-        public TextView onGenerateView(int position) {
-
-            TextView textView = new TextView(MainActivity.this);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-            textView.setGravity(Gravity.CENTER);
-            textView.setBackgroundResource(R.drawable.circle);
-            return textView;
-        }
-    }
-
-    private class TopCopyOperator implements ConstraintOperator< TextView > {
-
-        private int position;
-
-
-        public TopCopyOperator(int position) {
-
-            this.position = position;
-        }
-
-
-        @Override
-        public Constraint onGenerateConstraint(int position, Constraint constraint) {
-
-            constraint.copyFrom(this.position).translateY(constraint.getViewHeight(this.position) + 20);
-            return constraint;
-        }
-
-
-        @Override
-        public TextView onGenerateView(int position) {
-
-            TextView textView = new TextView(MainActivity.this);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-            textView.setGravity(Gravity.CENTER);
-            textView.setBackgroundResource(R.drawable.circle);
-            return textView;
-        }
-    }
-
-    private class BottomOperator implements ConstraintOperator< TextView > {
-
-        @Override
-        public Constraint onGenerateConstraint(int position, Constraint constraint) {
-
-            constraint.leftToLeftOfParent(50)
-                    .rightToRightOfParent(-50)
-                    .topToBottomOfView(position - 1, 50)
-                    .bottomToBottomOfView(position - 1, 350);
-
-            return constraint;
-        }
-
-
-        @Override
-        public TextView onGenerateView(int position) {
-
-            TextView textView = new TextView(MainActivity.this);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-            textView.setGravity(Gravity.CENTER);
-            textView.setBackgroundResource(R.drawable.rect);
-            return textView;
-        }
-
-
-        @Override
-        public void onBeforeLayout(int position, TextView v) {
-
-            v.setText(String.valueOf(position));
-        }
-    }
-
-    private class LayoutBottomOperator implements ConstraintOperator< LinearLayout > {
-
-        @Override
-        public Constraint onGenerateConstraint(int position, Constraint constraint) {
-
-            constraint.leftToLeftOfParent(50)
-                    .rightToRightOfParent(-50)
-                    .topToBottomOfView(position - 1, 50)
-                    .bottomToBottomOfView(position - 1, 1350);
-
-            return constraint;
-        }
-
-
-        @Override
-        public LinearLayout onGenerateView(int position) {
-
-            LinearLayout view = (LinearLayout) LayoutInflater.from(MainActivity.this)
-                    .inflate(
-                            R.layout.item_linear,
-                            mConstraintLayout,
-                            false
-                    );
-
-            return view;
-        }
-    }
-
-    private class PagerOperator implements ConstraintOperator< ViewPager > {
-
-        @Override
-        public Constraint onGenerateConstraint(int position, Constraint constraint) {
-
-            constraint.leftToLeftOfParent(50)
-                    .rightToRightOfParent(-50)
-                    .topToBottomOfView(position - 1, 50)
-                    .bottomToBottomOfView(position - 1, 550);
-
-            return constraint;
-        }
-
-
-        @Override
-        public ViewPager onGenerateView(int position) {
-
-            ViewPager pager = new ViewPager(MainActivity.this);
-            pager.setAdapter(new PagerAdapter());
-            return pager;
-        }
-
-
-        class PagerAdapter extends android.support.v4.view.PagerAdapter {
-
-            private String[] data = {
-                    "java",
-                    "android",
-                    "ios",
-                    "java scrip",
-                    "shell"
-            };
-
-
-            @Override
-            public int getCount() {
-
-                return 5;
-            }
-
-
-            @NonNull
-            @Override
-            public Object instantiateItem(@NonNull ViewGroup container, int position) {
-
-                TextView textView = new TextView(MainActivity.this);
-                textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-                textView.setGravity(Gravity.CENTER);
-                textView.setBackgroundResource(R.drawable.rect);
-                textView.setText(data[position]);
-
-                container.addView(textView);
-
-                return textView;
-            }
-
-
-            @Override
-            public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-
-                return view == object;
-            }
-
-
-            @Override
-            public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-
-                container.removeView((View) object);
-            }
-        }
-    }
 }

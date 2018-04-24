@@ -2,6 +2,7 @@ package com.example.constraintlayout;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -38,10 +39,6 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     private int mParentRight;
     private int mParentBottom;
 
-    /**
-     * 标记是否需要全部更新布局
-     */
-    private boolean allRelayout = true;
 
     /**
      * 监听,用于{@link #requestLayout()}中调用,询问用户是哪个view需要更新布局
@@ -120,8 +117,89 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
+    /**
+     * 0位为1表示已经测量过
+     * 1位为1表示已经确定尺寸
+     * 2位为1表示已经layout
+     * 3位为1表示有view需要更新布局
+     * 4位为1表示view reMeasured
+     * 5位为1表示view reLayouted
+     */
+    private int layoutState = 0;
+
+
+    private void setMeasured() {
+
+        layoutState |= 1;
+    }
+
+
+    private void setSizeChanged() {
+
+        layoutState |= 0b10;
+    }
+
+
+    private void setLayouted() {
+
+        layoutState |= 0b100;
+    }
+
+
+    private void setReLayoutView() {
+
+        layoutState |= 0b1000;
+    }
+
+
+    private void setRemeasured() {
+
+        layoutState |= 0b10000;
+    }
+
+
+    private void setRelayouted() {
+
+        layoutState |= 0b100000;
+    }
+
+
+    private boolean isFirstLayoutFinished() {
+
+        return (layoutState & 0b111) == 0b111;
+    }
+
+
+    private boolean hasViewNeedReLayout() {
+
+        return (layoutState & 0b1000) == 0b1000;
+    }
+
+
+    private void finishRelayout() {
+
+        Log.i(TAG, "finishRelayout:finishRelayout:" +
+                ((layoutState & 0b111000) == 0b111000) + " " +
+                Integer.toBinaryString(layoutState));
+        layoutState &= 0b111;
+        Log.i(TAG, "finishRelayout:finished:" + Integer.toBinaryString(layoutState));
+    }
+
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
+        Log.i(TAG, "onMeasure:" + "");
+
+        if (hasViewNeedReLayout()) {
+            Log.i(TAG, "onMeasure:" + "hasViewNeedReLayout");
+            setMeasuredDimension(getWidth(), getHeight());
+            boolean remeasure = mOnRelayoutListener.onRemeasure(this);
+            setRemeasured();
+            if (!remeasure) {
+                return;
+            }
+        }
 
         int widthFromParent = MeasureSpec.getSize(widthMeasureSpec);
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
@@ -159,20 +237,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
                 addView(child);
             }
 
-            /* 1. 先测量 */
-
-            Constraint constraint = adapter.generateConstraintTo(i, obtainConstraint());
-            constraint.check();
-            int widthSpec = constraint.makeWidthSpec();
-            int heightSpec = constraint.makeHeightSpec();
-            measureChild(child,
-                    widthSpec,
-                    heightSpec
-            );
-
-            /* 2. 记录测量之后该view的位置 */
-
-            LayoutParams params = setChildLayoutParams(constraint, child);
+            LayoutParams params = measureViewWithConstraint(adapter, i, child);
 
             /* 记录最右边最下边已经使用到的尺寸,用于之后设置自己的尺寸 */
 
@@ -206,6 +271,48 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         }
 
         setMeasuredDimension(width, height);
+
+        setMeasured();
+    }
+
+
+    private LayoutParams measureViewWithConstraint(BaseConstraintAdapter adapter, int i, View child) {
+
+        /* 1. 先测量 */
+
+        Constraint constraint = adapter.generateConstraintTo(i, obtainConstraint());
+        constraint.check();
+        int widthSpec = constraint.makeWidthSpec();
+        int heightSpec = constraint.makeHeightSpec();
+        measureChild(child,
+                widthSpec,
+                heightSpec
+        );
+
+        /* 2. 记录测量之后该view的位置 */
+
+        return setChildLayoutParams(constraint, child);
+    }
+
+
+    private LayoutParams measureViewWithConstraint(BaseConstraintAdapter adapter,
+                                                   int i,
+                                                   View child,
+                                                   Constraint constraint) {
+
+        /* 1. 先测量 */
+
+        constraint.check();
+        int widthSpec = constraint.makeWidthSpec();
+        int heightSpec = constraint.makeHeightSpec();
+        measureChild(child,
+                widthSpec,
+                heightSpec
+        );
+
+        /* 2. 记录测量之后该view的位置 */
+
+        return setChildLayoutParams(constraint, child);
     }
 
 
@@ -289,7 +396,26 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
 
     @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+
+        super.onSizeChanged(w, h, oldw, oldh);
+        setSizeChanged();
+    }
+
+
+    @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+
+        Log.i(TAG, "onLayout:" + "");
+
+        if (hasViewNeedReLayout()) {
+            boolean relayout = mOnRelayoutListener.onRelayout(this);
+            setRelayouted();
+            finishRelayout();
+            if (!relayout) {
+                return;
+            }
+        }
 
         BaseConstraintAdapter adapter = mAdapter;
         int count = adapter.getChildCount();
@@ -301,11 +427,19 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
                 continue;
             }
 
-            LayoutParams params = getChildLayoutParams(child);
-            adapter.beforeLayout(i, child);
-            child.layout(params.left, params.top, params.right, params.bottom);
-            adapter.afterLayout(i, child);
+            layoutChildWithLayoutParams(adapter, i, child);
         }
+
+        setLayouted();
+    }
+
+
+    private void layoutChildWithLayoutParams(BaseConstraintAdapter adapter, int position, View child) {
+
+        LayoutParams params = getChildLayoutParams(child);
+        adapter.beforeLayout(position, child);
+        child.layout(params.left, params.top, params.right, params.bottom);
+        adapter.afterLayout(position, child);
     }
 
     /* 工具方法简化创建操作 */
@@ -381,17 +515,12 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
-    public void relayoutChildren() {
-
-        this.allRelayout = true;
-        requestLayout();
-    }
+    private int count = 0;
 
 
     /**
      * 因为该Layout是静态布局,布局之后,调用该方法,没有必要更新全部view的布局,根据情况调用不同API,更新布局
      *
-     * 如果需要更新全部布局,请调用{@link #relayoutChildren()},
      * 如果需要更新一个view的尺寸调用{@link #updateViewConstraint(int, Constraint)},
      * 如果是{@link android.support.v4.view.ViewPager}这种需要不断请求重新布局的view,
      * 设置{@link #setOnRelayoutListener(OnRelayoutListener)}监听
@@ -401,103 +530,51 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
         /* 额外添加删除view时不重新布局 */
 
+        Log.i(TAG, "requestLayout:" + ++count + " 次 ");
+
         if (addOrRemoveExtraView) {
             return;
         }
 
-        /* 只有用户设置了 allRelayout 才重新布局*/
-
-        if (allRelayout) {
-
-            super.requestLayout();
-            allRelayout = false;
-            return;
+        if (isFirstLayoutFinished()) {
+            Log.i(TAG, "requestLayout:" + "finished first layout, new layout arrive");
+            setReLayoutView();
         }
 
-        /* 该方法发生调用时,询问用户是哪个需要重新布局 */
-
-        if (mOnRelayoutListener != null) {
-            int position = mOnRelayoutListener.onReLayout(this);
-
-            /* -1 将更新全部view */
-            if (position == -1) {
-                super.requestLayout();
-                return;
-            }
-
-            /* 更新单独一个view */
-
-            View view = getChildAt(position);
-
-            if (view == null) {
-                return;
-            }
-
-            boolean needNewConstraint = mOnRelayoutListener.needNewConstraint(position, view);
-            Constraint constraint;
-            if (needNewConstraint) {
-
-                /* 需要新的约束 */
-
-                constraint = mOnRelayoutListener.newConstraint(position, view, obtainConstraint());
-            } else {
-
-                /* 使用旧的约束 */
-
-                constraint = mAdapter.generateConstraintTo(position, obtainConstraint());
-            }
-
-            /* 重新布局该view */
-
-            LayoutParams params = reMeasureView(position, view, constraint);
-            reLayoutView(position, view, params);
-        }
+        super.requestLayout();
     }
 
 
-    /**
-     * 重新布局一个view
-     * @param position 该view布局位置
-     * @param view view
-     * @param constraint 新的约束
-     * @return 布局参数用于 reLayoutView 方法
-     */
-    private LayoutParams reMeasureView(int position, View view, Constraint constraint) {
+    public void reMeasureView(int position) {
 
-
-        /* 1. 先测量 */
-
+        View child = getChildAt(position);
+        if (child == null) {
+            return;
+        }
+        Constraint constraint = mAdapter.generateConstraintTo(position, obtainConstraint());
         constraint.check();
         int widthSpec = constraint.makeWidthSpec();
         int heightSpec = constraint.makeHeightSpec();
-        measureChild(
-                view,
+        measureChild(child,
                 widthSpec,
                 heightSpec
         );
 
-        /* 2. 记录测量之后该view的位置 */
-
-        return setChildLayoutParams(constraint, view);
+        setChildLayoutParams(constraint, child);
     }
 
 
-    /**
-     * 重新布局
-     * @param position 布局位置
-     * @param view view
-     * @param params reMeasureView的返回值
-     */
-    private void reLayoutView(int position, View view, LayoutParams params) {
+    public void reLayoutView(int position) {
 
-        mAdapter.beforeLayout(position, view);
-        view.layout(params.left, params.top, params.right, params.bottom);
-        mAdapter.afterLayout(position, view);
+        View child = getChildAt(position);
+        LayoutParams params = getChildLayoutParams(child);
+        child.layout(params.left, params.top, params.right, params.bottom);
     }
 
 
     /**
      * 根据view找到布局位置
+     *
      * @param view view
      * @return 布局位置
      */
@@ -536,8 +613,10 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
     public void updateViewConstraint(int position, View view, Constraint constraint) {
 
-        LayoutParams params = reMeasureView(position, view, constraint);
-        reLayoutView(position, view, params);
+        measureViewWithConstraint(mAdapter, position, view, constraint);
+        if (view.getVisibility() != GONE) {
+            layoutChildWithLayoutParams(mAdapter, position, view);
+        }
     }
 
     //============================ relayout quest ============================
@@ -548,37 +627,20 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     public interface OnRelayoutListener {
 
         /**
-         * 询问用户哪个view需要重新布局
+         * 重新测量view
          *
          * @param layout parent
-         * @return 需要更新的view的布局位置, 返回-1将会更新全部
+         * @return true: 将会全部重新测量
          */
-        int onReLayout(ConstraintLayout layout);
+        boolean onRemeasure(ConstraintLayout layout);
 
         /**
-         * 是否需要新的约束
+         * 重新布局view
          *
-         * @param position 布局位置
-         * @param view     returned by {@link #onReLayout(ConstraintLayout)}
-         * @return true需要新的约束
+         * @param layout parent
+         * @return true :将会全部重新布局
          */
-        default boolean needNewConstraint(int position, View view) {
-
-            return false;
-        }
-
-        /**
-         * 如果{@link #needNewConstraint(int, View)}返回true,将会回调,生成新的约束
-         *
-         * @param position   布局位置
-         * @param view       该位置的view
-         * @param constraint 空白约束
-         * @return 新约束
-         */
-        default Constraint newConstraint(int position, View view, Constraint constraint) {
-
-            return constraint;
-        }
+        boolean onRelayout(ConstraintLayout layout);
     }
 
 
@@ -775,4 +837,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
         return getChildLayoutParams(position).bottom;
     }
+
+    //============================ bundle relayout view ============================
+
 }
