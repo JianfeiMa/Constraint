@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     private class MainConstraintConstraintAdapter extends BaseConstraintAdapter {
 
-        final int size = 12;
+        final int size = 13;
 
 
         @Override
@@ -108,7 +108,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (position == 12) {
-
+                constraint.topToTopOfView(9, 0)
+                        .bottomToBottomOfView(11, 0)
+                        .leftToLeftOfView(7, 0)
+                        .rightToRightOfView(8, 0);
             }
 
             return constraint;

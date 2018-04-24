@@ -43,6 +43,9 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
      */
     private boolean allRelayout = true;
 
+    /**
+     * 监听,用于{@link #requestLayout()}中调用,询问用户是哪个view需要更新布局
+     */
     private OnRelayoutListener mOnRelayoutListener;
 
 
@@ -378,12 +381,21 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
-    public void setAllRelayout(boolean allRelayout) {
+    public void relayoutChildren() {
 
-        this.allRelayout = allRelayout;
+        this.allRelayout = true;
+        requestLayout();
     }
 
 
+    /**
+     * 因为该Layout是静态布局,布局之后,调用该方法,没有必要更新全部view的布局,根据情况调用不同API,更新布局
+     *
+     * 如果需要更新全部布局,请调用{@link #relayoutChildren()},
+     * 如果需要更新一个view的尺寸调用{@link #updateViewConstraint(int, Constraint)},
+     * 如果是{@link android.support.v4.view.ViewPager}这种需要不断请求重新布局的view,
+     * 设置{@link #setOnRelayoutListener(OnRelayoutListener)}监听
+     */
     @Override
     public void requestLayout() {
 
@@ -443,6 +455,13 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
+    /**
+     * 重新布局一个view
+     * @param position 该view布局位置
+     * @param view view
+     * @param constraint 新的约束
+     * @return 布局参数用于 reLayoutView 方法
+     */
     private LayoutParams reMeasureView(int position, View view, Constraint constraint) {
 
 
@@ -463,6 +482,12 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
+    /**
+     * 重新布局
+     * @param position 布局位置
+     * @param view view
+     * @param params reMeasureView的返回值
+     */
     private void reLayoutView(int position, View view, LayoutParams params) {
 
         mAdapter.beforeLayout(position, view);
@@ -471,6 +496,11 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
+    /**
+     * 根据view找到布局位置
+     * @param view view
+     * @return 布局位置
+     */
     public int findLayoutPosition(View view) {
 
         int count = getChildCount();
