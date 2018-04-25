@@ -48,14 +48,14 @@ public class Main2Activity extends AppCompatActivity {
 
             @Override
             public boolean onRemeasure(ConstraintLayout layout) {
-                layout.reMeasureView(21);
+                layout.remeasureView(21);
                 return false;
             }
 
 
             @Override
             public boolean onRelayout(ConstraintLayout layout) {
-                layout.reLayoutView(21);
+                layout.relayoutView(21);
                 return false;
             }
         });

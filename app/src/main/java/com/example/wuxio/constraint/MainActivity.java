@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -27,6 +28,9 @@ import java.util.Locale;
  */
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
+
+
     public static void start(Context context) {
 
         Intent starter = new Intent(context, MainActivity.class);
@@ -45,13 +49,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mConstraintLayout = findViewById(R.id.constraintLayout);
+
         mConstraintLayout.setAdapter(new MainConstraintConstraintAdapter());
+
         mConstraintLayout.setOnRelayoutListener(new ConstraintLayout.OnRelayoutListener() {
 
             @Override
             public boolean onRemeasure(ConstraintLayout layout) {
 
-                layout.reMeasureView(0);
+                layout.remeasureView(0);
                 return false;
             }
 
@@ -59,10 +65,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onRelayout(ConstraintLayout layout) {
 
-                layout.reLayoutView(0);
+                layout.relayoutView(0);
                 return false;
             }
         });
+
+        //mConstraintLayout.setAdapter(new SimpleAdapter());
+
     }
 
 
@@ -161,6 +170,19 @@ public class MainActivity extends AppCompatActivity {
         public int getChildCount() {
 
             return size;
+        }
+
+
+        private int layoutCount;
+
+
+        @Override
+        public void afterLayout(int position, View view) {
+
+            super.afterLayout(position, view);
+            if (position == 0) {
+                Log.i(TAG, "afterLayout:" + ++layoutCount);
+            }
         }
     }
 
@@ -264,6 +286,88 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private class SimpleAdapter extends BaseConstraintAdapter {
+
+        @Override
+        public Constraint generateConstraintTo(int position, Constraint constraint) {
+
+            switch (position) {
+
+                case 0:
+                    constraint.leftToLeftOfParent(50)
+                            .rightToRightOfParent(-50)
+                            .topToTopOfParent(50)
+                            .bottomToTopOfParent(500);
+                    break;
+
+                case 1:
+                    constraint.leftToLeftOfView(0, 0)
+                            .topToBottomOfView(0, 10)
+                            .rightToLeftOfView(0, 400)
+                            .bottomToBottomOfView(0, 400);
+                    break;
+
+                case 2:
+                    constraint.leftToLeftOfParent(50)
+                            .topToTopOfView(0, 0)
+                            .rightToRightOfView(0, 0)
+                            .bottomToTopOfView(0, 100);
+                    break;
+
+                default:
+                    break;
+            }
+
+            return constraint;
+        }
+
+
+        @Override
+        public View generateViewTo(int position) {
+
+            View view;
+            switch (position) {
+                case 2:
+                    view = getTextView(position, getColorC(R.color.skyblue));
+                    break;
+
+                default:
+                    view = getTextView(position);
+                    break;
+            }
+
+            return view;
+        }
+
+
+        @Override
+        public int getChildCount() {
+
+            return 3;
+        }
+
+
+        @Override
+        public void beforeLayout(int position, View view) {
+
+            super.beforeLayout(position, view);
+        }
+
+
+        @Override
+        public void afterLayout(int position, View view) {
+
+            super.afterLayout(position, view);
+        }
+    }
+
+
+    public int getColorC(int colorID) {
+
+        return getResources().getColor(colorID);
     }
 
 }

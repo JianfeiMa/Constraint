@@ -12,6 +12,14 @@ import com.example.constraintlayout.Constraint;
 public abstract class BaseConstraintAdapter {
 
     /**
+     * 为该布局位置生成一个view
+     *
+     * @param position 布局位置
+     * @return 该布局位置的view
+     */
+    public abstract View generateViewTo(int position);
+
+    /**
      * 为该布局位置生成一个约束
      *
      * @param position   布局位置
@@ -19,14 +27,6 @@ public abstract class BaseConstraintAdapter {
      * @return 一个修改后的约束, 将使用该约束约束该布局位置的view
      */
     public abstract Constraint generateConstraintTo(int position, Constraint constraint);
-
-    /**
-     * 为该布局位置生成一个view
-     *
-     * @param position 布局位置
-     * @return 该布局位置的view
-     */
-    public abstract View generateViewTo(int position);
 
     /**
      * 返回该布局一共有多少view
