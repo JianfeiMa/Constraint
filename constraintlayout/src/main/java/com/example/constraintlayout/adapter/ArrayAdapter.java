@@ -11,7 +11,8 @@ import com.example.constraintlayout.ConstraintLayout;
 import com.example.constraintlayout.simple.ConstraintOperator;
 
 /**
- * 使用{@link ConstraintOperator}创建一个{@link BaseConstraintAdapter},和{@link ConstraintLayout#setUpWith(ConstraintOperator[])}配合使用
+ * 使用{@link ConstraintOperator}创建一个{@link BaseConstraintAdapter},
+ * 和{@link ConstraintLayout#setUpWith(ConstraintOperator[])}配合使用
  *
  * @author wuxio
  */
@@ -45,6 +46,20 @@ public class ArrayAdapter extends BaseConstraintAdapter {
     public int getChildCount() {
 
         return mOperators.length;
+    }
+
+
+    @Override
+    public void beforeMeasure(int position, View view) {
+
+        mOperators[position].onBeforeMeasure(position, view);
+    }
+
+
+    @Override
+    public void afterMeasure(int position, View view) {
+
+        mOperators[position].onAfterMeasure(position, view);
     }
 
 

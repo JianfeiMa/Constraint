@@ -31,6 +31,26 @@ public interface ConstraintOperator < T extends View > {
     T onGenerateView(int position);
 
     /**
+     * view measure之前回调
+     *
+     * @param position 布局位置
+     * @param v        该位置的view
+     */
+    default void onBeforeMeasure(int position, T v) {
+
+    }
+
+    /**
+     * view measure之后回调
+     *
+     * @param position 布局位置
+     * @param v        该位置的view
+     */
+    default void onAfterMeasure(int position, T v) {
+
+    }
+
+    /**
      * view layout之前回调
      *
      * @param position 布局位置

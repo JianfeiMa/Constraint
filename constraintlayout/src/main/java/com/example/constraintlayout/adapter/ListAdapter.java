@@ -51,6 +51,20 @@ public class ListAdapter extends BaseConstraintAdapter {
 
 
     @Override
+    public void beforeMeasure(int position, View view) {
+
+        mOperators.get(position).onBeforeMeasure(position, view);
+    }
+
+
+    @Override
+    public void afterMeasure(int position, View view) {
+
+        mOperators.get(position).onBeforeMeasure(position, view);
+    }
+
+
+    @Override
     public void beforeLayout(int position, View view) {
 
         mOperators.get(position).onBeforeLayout(position, view);
