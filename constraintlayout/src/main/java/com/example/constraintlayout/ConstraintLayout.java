@@ -329,9 +329,9 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         /* 1. 先测量 */
 
         Constraint constraint = adapter.generateConstraintTo(position, obtainConstraint());
-        constraint.check();
-        int widthSpec = constraint.makeWidthSpec();
-        int heightSpec = constraint.makeHeightSpec();
+        constraint.check(child);
+        int widthSpec = constraint.makeWidthSpec(child);
+        int heightSpec = constraint.makeHeightSpec(child);
 
         adapter.beforeMeasure(position, child);
 
@@ -358,9 +358,9 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
         /* 1. 先测量 */
 
-        constraint.check();
-        int widthSpec = constraint.makeWidthSpec();
-        int heightSpec = constraint.makeHeightSpec();
+        constraint.check(child);
+        int widthSpec = constraint.makeWidthSpec(child);
+        int heightSpec = constraint.makeHeightSpec(child);
         measureChild(child,
                 widthSpec,
                 heightSpec
@@ -527,24 +527,24 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     /**
      * 额外添加一个view,通常是需要弹窗的情况使用
      *
-     * @param view         额外的view
+     * @param child        额外的view
      * @param layoutParams 该view布局参数
      * @param constraint   对view的约束
      */
-    public void addExtraView(View view, LayoutParams layoutParams, Constraint constraint) {
+    public void addExtraView(View child, LayoutParams layoutParams, Constraint constraint) {
 
         addOrRemoveExtraView = true;
-        addView(view, layoutParams);
+        addView(child, layoutParams);
 
-        int widthSpec = constraint.makeWidthSpec();
-        int heightSpec = constraint.makeHeightSpec();
-        measureChild(view,
+        int widthSpec = constraint.makeWidthSpec(child);
+        int heightSpec = constraint.makeHeightSpec(child);
+        measureChild(child,
                 widthSpec,
                 heightSpec
         );
-        LayoutParams params = setChildLayoutParams(constraint, view);
+        LayoutParams params = setChildLayoutParams(constraint, child);
 
-        view.layout(params.left, params.top, params.right, params.bottom);
+        child.layout(params.left, params.top, params.right, params.bottom);
 
         addOrRemoveExtraView = false;
     }
@@ -631,9 +631,9 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
             return;
         }
         Constraint constraint = mAdapter.generateConstraintTo(position, obtainConstraint());
-        constraint.check();
-        int widthSpec = constraint.makeWidthSpec();
-        int heightSpec = constraint.makeHeightSpec();
+        constraint.check(child);
+        int widthSpec = constraint.makeWidthSpec(child);
+        int heightSpec = constraint.makeHeightSpec(child);
         measureChild(child,
                 widthSpec,
                 heightSpec
@@ -656,9 +656,9 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
             return;
         }
 
-        constraint.check();
-        int widthSpec = constraint.makeWidthSpec();
-        int heightSpec = constraint.makeHeightSpec();
+        constraint.check(child);
+        int widthSpec = constraint.makeWidthSpec(child);
+        int heightSpec = constraint.makeHeightSpec(child);
         measureChild(child,
                 widthSpec,
                 heightSpec

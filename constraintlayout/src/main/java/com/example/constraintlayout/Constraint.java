@@ -9,6 +9,8 @@ import android.view.View;
 
 import java.util.Locale;
 
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 /**
  * 约束,用于对布局中的view进行约束布局
  *
@@ -672,9 +674,25 @@ public class Constraint {
     /**
      * 检查该约束是否合法,合法:right>=left && bottom>=top
      */
-    public void check() {
+    public void check(View view) {
 
-        boolean legal = right >= left && bottom >= top;
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) view.getLayoutParams();
+
+        boolean hor;
+        if (params.width == WRAP_CONTENT) {
+            hor = true;
+        } else {
+            hor = right >= left;
+        }
+
+        boolean ver;
+        if (params.height == WRAP_CONTENT) {
+            ver = true;
+        } else {
+            ver = bottom >= top;
+        }
+
+        boolean legal = hor && ver;
 
         if (!legal) {
             String message = " right must >= left, bottom must >= top, current is: left=%d ," +
@@ -690,12 +708,17 @@ public class Constraint {
      *
      * @return 宽度Spec, 用于测量view
      */
-    public int makeWidthSpec() {
+    public int makeWidthSpec(View view) {
 
-        if (left < right) {
-            return View.MeasureSpec.makeMeasureSpec(right - left, View.MeasureSpec.EXACTLY);
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) view.getLayoutParams();
+        if (params.width == WRAP_CONTENT) {
+            return View.MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE >> 1, View.MeasureSpec.AT_MOST);
         } else {
-            return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY);
+            if (left < right) {
+                return View.MeasureSpec.makeMeasureSpec(right - left, View.MeasureSpec.EXACTLY);
+            } else {
+                return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY);
+            }
         }
     }
 
@@ -705,12 +728,17 @@ public class Constraint {
      *
      * @return 高度Spec, 用于测量view
      */
-    public int makeHeightSpec() {
+    public int makeHeightSpec(View view) {
 
-        if (bottom > top) {
-            return View.MeasureSpec.makeMeasureSpec(bottom - top, View.MeasureSpec.EXACTLY);
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) view.getLayoutParams();
+        if (params.height == WRAP_CONTENT) {
+            return View.MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE >> 1, View.MeasureSpec.AT_MOST);
         } else {
-            return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY);
+            if (bottom > top) {
+                return View.MeasureSpec.makeMeasureSpec(bottom - top, View.MeasureSpec.EXACTLY);
+            } else {
+                return View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY);
+            }
         }
     }
 
