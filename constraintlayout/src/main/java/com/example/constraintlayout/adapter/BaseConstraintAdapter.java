@@ -36,6 +36,16 @@ public abstract class BaseConstraintAdapter {
     public abstract int getChildCount();
 
 
+    public void beforeMeasure(int position, View view) {
+
+    }
+
+
+    public void afterMeasure(int position, View view) {
+
+    }
+
+
     public void beforeLayout(int position, View view) {
 
     }

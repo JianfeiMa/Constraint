@@ -324,18 +324,23 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     /**
      * 记录测量之后view的布局位置,简化{@link #onLayout(boolean, int, int, int, int)}操作
      */
-    private LayoutParams measureViewWithConstraint(BaseConstraintAdapter adapter, int i, View child) {
+    private LayoutParams measureViewWithConstraint(BaseConstraintAdapter adapter, int position, View child) {
 
         /* 1. 先测量 */
 
-        Constraint constraint = adapter.generateConstraintTo(i, obtainConstraint());
+        Constraint constraint = adapter.generateConstraintTo(position, obtainConstraint());
         constraint.check();
         int widthSpec = constraint.makeWidthSpec();
         int heightSpec = constraint.makeHeightSpec();
+
+        adapter.beforeMeasure(position, child);
+
         measureChild(child,
                 widthSpec,
                 heightSpec
         );
+
+        adapter.afterMeasure(position, child);
 
         /* 2. 记录测量之后该view的位置 */
 
