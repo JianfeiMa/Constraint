@@ -10,9 +10,11 @@ allprojects {
 ```
 ```
 dependencies {
-    compile 'com.github.threekilogram:Constraint:v1.0'
+    compile 'com.github.threekilogram:Constraint:${version}'
 }
 ```
+
+[version 版本号在这里](https://github.com/threekilogram/Constraint/releases)
 
 ## 简介
 
