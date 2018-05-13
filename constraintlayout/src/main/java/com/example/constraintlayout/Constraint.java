@@ -36,6 +36,14 @@ public class Constraint {
     float verticalBias   = 0f;
 
     /**
+     * 第3位表示left是否有约束,1为有,0为没有
+     * 第2位表示top是否有约束,1为有,0为没有
+     * 第1位表示right是否有约束,1为有,0为没有
+     * 第0位表示bottom是否有约束,1为有,0为没有
+     */
+    private int whichEdgeConstraint;
+
+    /**
      * 一个支持约束的布局
      */
     private ConstraintSupport mParent;
@@ -78,6 +86,8 @@ public class Constraint {
 
         horizontalBias = 0f;
         verticalBias = 0f;
+
+        whichEdgeConstraint = 0;
     }
 
 
@@ -158,6 +168,56 @@ public class Constraint {
         return this;
     }
 
+    //============================ 标记受约束的边 ============================
+
+
+    public void setLeftConstraint() {
+
+        whichEdgeConstraint |= 0b1;
+    }
+
+
+    public void setTopConstraint() {
+
+        whichEdgeConstraint |= 0b10;
+    }
+
+
+    public void setRightConstraint() {
+
+        whichEdgeConstraint |= 0b100;
+    }
+
+
+    public void setBottomConstraint() {
+
+        whichEdgeConstraint |= 0b1000;
+    }
+
+
+    public boolean isLeftConstraint() {
+
+        return (whichEdgeConstraint & 0b1) == 1;
+    }
+
+
+    public boolean isTopConstraint() {
+
+        return (whichEdgeConstraint >> 1 & 0b1) == 1;
+    }
+
+
+    public boolean isRightConstraint() {
+
+        return (whichEdgeConstraint >> 2 & 0b1) == 1;
+    }
+
+
+    public boolean isBottomConstraint() {
+
+        return (whichEdgeConstraint >> 3 & 0b1) == 1;
+    }
+
     //============================约束至Parent============================
 
 
@@ -168,6 +228,7 @@ public class Constraint {
      */
     public Constraint leftToLeftOfParent(int offset) {
 
+        setLeftConstraint();
         left = mParent.getParentLeft() + offset;
         return this;
     }
@@ -181,6 +242,7 @@ public class Constraint {
      */
     public Constraint leftToLeftOfParent(int offset, int width) {
 
+        setLeftConstraint();
         left = mParent.getParentLeft() + offset;
         right = left + width;
         return this;
@@ -195,6 +257,8 @@ public class Constraint {
     public Constraint leftToRightOfParent(int offset) {
 
         checkParentRight();
+
+        setLeftConstraint();
         left = mParent.getParentRight() + offset;
         return this;
     }
@@ -210,6 +274,7 @@ public class Constraint {
 
         checkParentRight();
 
+        setLeftConstraint();
         left = mParent.getParentRight() + offset;
         right = left + width;
         return this;
@@ -223,6 +288,7 @@ public class Constraint {
      */
     public Constraint rightToLeftOfParent(int offset) {
 
+        setRightConstraint();
         right = mParent.getParentLeft() + offset;
         return this;
     }
@@ -236,6 +302,7 @@ public class Constraint {
      */
     public Constraint rightToLeftOfParent(int offset, int width) {
 
+        setRightConstraint();
         right = mParent.getParentLeft() + offset;
         left = right - width;
         return this;
@@ -251,6 +318,7 @@ public class Constraint {
 
         checkParentRight();
 
+        setRightConstraint();
         right = mParent.getParentRight() + offset;
         return this;
     }
@@ -266,6 +334,7 @@ public class Constraint {
 
         checkParentRight();
 
+        setRightConstraint();
         right = mParent.getParentRight() + offset;
         left = right - width;
         return this;
@@ -279,6 +348,7 @@ public class Constraint {
      */
     public Constraint topToTopOfParent(int offset) {
 
+        setTopConstraint();
         top = mParent.getParentTop() + offset;
         return this;
     }
@@ -292,6 +362,7 @@ public class Constraint {
      */
     public Constraint topToTopOfParent(int offset, int height) {
 
+        setTopConstraint();
         top = mParent.getParentTop() + offset;
         bottom = top + height;
         return this;
@@ -307,6 +378,7 @@ public class Constraint {
 
         checkParentBottom();
 
+        setTopConstraint();
         top = mParent.getParentBottom() + offset;
         return this;
     }
@@ -322,6 +394,7 @@ public class Constraint {
 
         checkParentBottom();
 
+        setTopConstraint();
         top = mParent.getParentBottom() + offset;
         bottom = top + height;
         return this;
@@ -335,6 +408,7 @@ public class Constraint {
      */
     public Constraint bottomToTopOfParent(int offset) {
 
+        setBottomConstraint();
         bottom = mParent.getParentTop() + offset;
         return this;
     }
@@ -348,6 +422,7 @@ public class Constraint {
      */
     public Constraint bottomToTopOfParent(int offset, int height) {
 
+        setBottomConstraint();
         bottom = mParent.getParentTop() + offset;
         top = bottom - height;
         return this;
@@ -363,6 +438,7 @@ public class Constraint {
 
         checkParentBottom();
 
+        setBottomConstraint();
         bottom = mParent.getParentBottom() + offset;
         return this;
     }
@@ -378,6 +454,7 @@ public class Constraint {
 
         checkParentBottom();
 
+        setBottomConstraint();
         bottom = mParent.getParentBottom() + offset;
         top = bottom - height;
         return this;
@@ -394,6 +471,7 @@ public class Constraint {
      */
     public Constraint leftToLeftOfView(int position, int offset) {
 
+        setLeftConstraint();
         left = mParent.getViewLeft(position) + offset;
         return this;
     }
@@ -408,6 +486,7 @@ public class Constraint {
      */
     public Constraint leftToLeftOfView(int position, int offset, int width) {
 
+        setLeftConstraint();
         left = mParent.getViewLeft(position) + offset;
         right = left + width;
         return this;
@@ -422,6 +501,7 @@ public class Constraint {
      */
     public Constraint leftToRightOfView(int position, int offset) {
 
+        setLeftConstraint();
         left = mParent.getViewRight(position) + offset;
         return this;
     }
@@ -436,6 +516,7 @@ public class Constraint {
      */
     public Constraint leftToRightOfView(int position, int offset, int width) {
 
+        setLeftConstraint();
         left = mParent.getViewRight(position) + offset;
         right = left + width;
         return this;
@@ -450,6 +531,7 @@ public class Constraint {
      */
     public Constraint rightToLeftOfView(int position, int offset) {
 
+        setRightConstraint();
         right = mParent.getViewLeft(position) + offset;
         return this;
     }
@@ -464,6 +546,7 @@ public class Constraint {
      */
     public Constraint rightToLeftOfView(int position, int offset, int width) {
 
+        setRightConstraint();
         right = mParent.getViewLeft(position) + offset;
         left = right - width;
         return this;
@@ -478,6 +561,7 @@ public class Constraint {
      */
     public Constraint rightToRightOfView(int position, int offset) {
 
+        setRightConstraint();
         right = mParent.getViewRight(position) + offset;
         return this;
     }
@@ -492,6 +576,7 @@ public class Constraint {
      */
     public Constraint rightToRightOfView(int position, int offset, int width) {
 
+        setRightConstraint();
         right = mParent.getViewRight(position) + offset;
         left = right - width;
         return this;
@@ -506,6 +591,7 @@ public class Constraint {
      */
     public Constraint topToTopOfView(int position, int offset) {
 
+        setTopConstraint();
         top = mParent.getViewTop(position) + offset;
         return this;
     }
@@ -520,6 +606,7 @@ public class Constraint {
      */
     public Constraint topToTopOfView(int position, int offset, int height) {
 
+        setTopConstraint();
         top = mParent.getViewTop(position) + offset;
         bottom = top + height;
         return this;
@@ -534,6 +621,7 @@ public class Constraint {
      */
     public Constraint topToBottomOfView(int position, int offset) {
 
+        setTopConstraint();
         top = mParent.getViewBottom(position) + offset;
         return this;
     }
@@ -548,6 +636,7 @@ public class Constraint {
      */
     public Constraint topToBottomOfView(int position, int offset, int height) {
 
+        setTopConstraint();
         top = mParent.getViewBottom(position) + offset;
         bottom = top + height;
         return this;
@@ -562,6 +651,7 @@ public class Constraint {
      */
     public Constraint bottomToTopOfView(int position, int offset) {
 
+        setBottomConstraint();
         bottom = mParent.getViewTop(position) + offset;
         return this;
     }
@@ -576,6 +666,7 @@ public class Constraint {
      */
     public Constraint bottomToTopOfView(int position, int offset, int height) {
 
+        setBottomConstraint();
         bottom = mParent.getViewTop(position) + offset;
         top = bottom - height;
         return this;
@@ -590,6 +681,7 @@ public class Constraint {
      */
     public Constraint bottomToBottomOfView(int position, int offset) {
 
+        setBottomConstraint();
         bottom = mParent.getViewBottom(position) + offset;
         return this;
     }
@@ -604,6 +696,7 @@ public class Constraint {
      */
     public Constraint bottomToBottomOfView(int position, int offset, int height) {
 
+        setBottomConstraint();
         bottom = mParent.getViewBottom(position) + offset;
         top = bottom - height;
         return this;
@@ -613,6 +706,11 @@ public class Constraint {
 
 
     public Constraint copyFrom(int position) {
+
+        setLeftConstraint();
+        setTopConstraint();
+        setRightConstraint();
+        setBottomConstraint();
 
         left = mParent.getViewLeft(position);
         top = mParent.getViewTop(position);

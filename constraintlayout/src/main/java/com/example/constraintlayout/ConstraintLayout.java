@@ -406,8 +406,14 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
         if (constraint.horizontalBias == minBias) {
 
-            params.left = constraintLeft;
-            params.right = params.left + child.getMeasuredWidth();
+            if (constraint.isLeftConstraint()) {
+                params.left = constraintLeft;
+                params.right = constraintLeft + child.getMeasuredWidth();
+            } else {
+                params.left = constraintRight - child.getMeasuredWidth();
+                params.right = constraintRight;
+            }
+
         } else {
 
             /* have horizontal offset */
@@ -419,13 +425,29 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
             if (extraSpace > 0) {
 
-                float offset = constraint.horizontalBias * extraSpace;
-                params.left = (int) (constraintLeft + offset) + 1;
-                params.right = params.left + child.getMeasuredWidth();
+                if (constraint.isLeftConstraint()) {
+
+                    float offset = constraint.horizontalBias * extraSpace;
+                    params.left = (int) (constraintLeft + offset) + 1;
+                    params.right = params.left + child.getMeasuredWidth();
+
+                } else {
+
+                    float offset = (1 - constraint.horizontalBias) * extraSpace;
+                    params.right = (int) (constraintRight - offset) + 1;
+                    params.left = params.right - child.getMeasuredWidth();
+
+                }
 
             } else {
-                params.left = constraintLeft;
-                params.right = params.left + child.getMeasuredWidth();
+
+                if (constraint.isLeftConstraint()) {
+                    params.left = constraintLeft;
+                    params.right = constraintLeft + child.getMeasuredWidth();
+                } else {
+                    params.left = constraintRight - child.getMeasuredWidth();
+                    params.right = constraintRight;
+                }
             }
         }
 
@@ -433,8 +455,13 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
         if (constraint.verticalBias == minBias) {
 
-            params.top = constraintTop;
-            params.bottom = params.top + child.getMeasuredHeight();
+            if (constraint.isTopConstraint()) {
+                params.top = constraintTop;
+                params.bottom = params.top + child.getMeasuredHeight();
+            } else {
+                params.top = constraintBottom - child.getMeasuredHeight();
+                params.bottom = constraintBottom;
+            }
         } else {
 
             /* have vertical offset */
@@ -446,13 +473,29 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
             if (extraSpace > 0) {
 
-                float offset = constraint.verticalBias * extraSpace;
-                params.top = (int) (constraintTop + offset) + 1;
-                params.bottom = params.top + childMeasuredHeight;
+                if (constraint.isTopConstraint()) {
+
+                    float offset = constraint.verticalBias * extraSpace;
+                    params.top = (int) (constraintTop + offset) + 1;
+                    params.bottom = params.top + childMeasuredHeight;
+
+                } else {
+
+                    float offset = (1 - constraint.verticalBias) * extraSpace;
+                    params.top = constraintBottom - child.getMeasuredHeight();
+                    params.bottom = (int) (constraintBottom - offset) - 1;
+
+                }
 
             } else {
-                params.top = constraintTop;
-                params.bottom = params.top + child.getMeasuredHeight();
+
+                if (constraint.isTopConstraint()) {
+                    params.top = constraintTop;
+                    params.bottom = params.top + child.getMeasuredHeight();
+                } else {
+                    params.top = constraintBottom - child.getMeasuredHeight();
+                    params.bottom = constraintBottom;
+                }
             }
         }
 
