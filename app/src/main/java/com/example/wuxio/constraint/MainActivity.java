@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     protected ContainerLayout                    mContainer;
     protected NavigationView                     mNavigationView;
     protected DrawerLayout                       mDrawer;
-    private   MainNavigationItemSelectedListener mListener;
+    private   MainNavigationItemSelectedListener mItemSelectedListener;
 
 
     public static void start(Context context) {
@@ -39,6 +39,14 @@ public class MainActivity extends AppCompatActivity {
         super.setContentView(R.layout.activity_main);
         initView();
 
+        mDrawer.post(new Runnable() {
+            @Override
+            public void run() {
+
+                mNavigationView.setCheckedItem(R.id.menu00);
+                mItemSelectedListener.initFirstPage();
+            }
+        });
     }
 
 
@@ -46,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
 
         mContainer = findViewById(R.id.container);
         mNavigationView = findViewById(R.id.navigationView);
-        mListener = new MainNavigationItemSelectedListener();
-        mNavigationView.setNavigationItemSelectedListener(mListener);
+        mItemSelectedListener = new MainNavigationItemSelectedListener();
+        mNavigationView.setNavigationItemSelectedListener(mItemSelectedListener);
         mDrawer = findViewById(R.id.drawer);
     }
 
@@ -64,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         Fragment[] mFragments = {
                 YunFragment.newInstance(),
+                TaoFragment.newInstance(),
         };
 
 
@@ -76,6 +85,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        public void initFirstPage() {
+
+            changeFragment(mFragments[0]);
+        }
+
+
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
@@ -83,6 +98,10 @@ public class MainActivity extends AppCompatActivity {
 
                 case R.id.menu00:
                     changeFragment(mFragments[0]);
+                    break;
+
+                case R.id.menu01:
+                    changeFragment(mFragments[1]);
                     break;
 
                 default:
