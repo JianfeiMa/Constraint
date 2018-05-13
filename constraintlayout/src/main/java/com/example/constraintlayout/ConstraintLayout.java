@@ -279,7 +279,8 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
             if (child == null) {
 
                 child = adapter.generateViewTo(i);
-                addView(child);
+                LayoutParams params = adapter.generateLayoutParamsTo(i);
+                addView(child, params);
             }
 
             LayoutParams params = measureViewWithConstraint(adapter, i, child);

@@ -1,8 +1,10 @@
 package com.example.constraintlayout.adapter;
 
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.example.constraintlayout.Constraint;
+import com.example.constraintlayout.ConstraintLayout.LayoutParams;
 
 /**
  * Created by LiuJin on 2018-04-03:9:59
@@ -18,6 +20,13 @@ public abstract class BaseConstraintAdapter {
      * @return 该布局位置的view
      */
     public abstract View generateViewTo(int position);
+
+
+    public LayoutParams generateLayoutParamsTo(int position) {
+
+        return new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+    }
+
 
     /**
      * 为该布局位置生成一个约束
