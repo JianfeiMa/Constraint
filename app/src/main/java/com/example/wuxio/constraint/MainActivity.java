@@ -3,7 +3,15 @@ package com.example.wuxio.constraint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
+import android.view.MenuItem;
+
+import com.example.viewskin.ContainerLayout;
 
 /**
  * @author wuxio
@@ -11,6 +19,10 @@ import android.support.v7.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    protected ContainerLayout                    mContainer;
+    protected NavigationView                     mNavigationView;
+    protected DrawerLayout                       mDrawer;
+    private   MainNavigationItemSelectedListener mListener;
 
 
     public static void start(Context context) {
@@ -24,7 +36,61 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        super.setContentView(R.layout.activity_main);
+        initView();
 
+    }
+
+
+    private void initView() {
+
+        mContainer = findViewById(R.id.container);
+        mNavigationView = findViewById(R.id.navigationView);
+        mListener = new MainNavigationItemSelectedListener();
+        mNavigationView.setNavigationItemSelectedListener(mListener);
+        mDrawer = findViewById(R.id.drawer);
+    }
+
+
+    private void closeDrawer() {
+
+        mDrawer.closeDrawer(Gravity.START);
+    }
+
+    //============================ 内部类 ============================
+
+    private class MainNavigationItemSelectedListener implements NavigationView
+            .OnNavigationItemSelectedListener {
+
+        Fragment[] mFragments = {
+                YunFragment.newInstance(),
+        };
+
+
+        private void changeFragment(Fragment fragment) {
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.container, fragment)
+                    .commit();
+        }
+
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+            switch (item.getItemId()) {
+
+                case R.id.menu00:
+                    changeFragment(mFragments[0]);
+                    break;
+
+                default:
+                    break;
+            }
+
+            closeDrawer();
+            return true;
+        }
     }
 }

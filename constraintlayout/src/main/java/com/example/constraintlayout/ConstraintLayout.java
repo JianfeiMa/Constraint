@@ -233,6 +233,14 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
+        if (mAdapter == null) {
+            setMeasuredDimension(
+                    MeasureSpec.getSize(widthMeasureSpec),
+                    MeasureSpec.getSize(heightMeasureSpec)
+            );
+            return;
+        }
+
         if (hasViewNeedReLayout()) {
 
             setMeasuredDimension(getWidth(), getHeight());
@@ -462,6 +470,12 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+
+        if (mAdapter == null) {
+            return;
+        }
+
+        /* 重新布局一个view */
 
         if (hasViewNeedReLayout()) {
 
