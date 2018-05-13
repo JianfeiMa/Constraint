@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -51,49 +50,53 @@ public class TestFragment extends Fragment {
         mConstraintLayout = view.findViewById(R.id.constraint);
         mConstraintLayout.setAdapter(new ConstraintAdapter());
 
-        mConstraintLayout.post(new Runnable() {
-            @Override
-            public void run() {
-
-                Constraint constraint = mConstraintLayout.obtainConstraint();
-
-                constraint.leftToLeftOfView(0, 0);
-                boolean leftConstraint = constraint.isLeftConstraint();
-                boolean topConstraint = constraint.isTopConstraint();
-                boolean rightConstraint = constraint.isRightConstraint();
-                boolean bottomConstraint = constraint.isBottomConstraint();
-                Log.i(TAG, "onViewCreated 01:" + leftConstraint + " " + topConstraint + " " + rightConstraint
-                        + " " +
-                        bottomConstraint);
-
-                constraint.rightToRightOfView(0, 0);
-                leftConstraint = constraint.isLeftConstraint();
-                topConstraint = constraint.isTopConstraint();
-                rightConstraint = constraint.isRightConstraint();
-                bottomConstraint = constraint.isBottomConstraint();
-                Log.i(TAG, "onViewCreated 02:" + leftConstraint + " " + topConstraint + " " + rightConstraint
-                        + " " +
-                        bottomConstraint);
-
-                constraint.topToTopOfView(0, 0);
-                leftConstraint = constraint.isLeftConstraint();
-                topConstraint = constraint.isTopConstraint();
-                rightConstraint = constraint.isRightConstraint();
-                bottomConstraint = constraint.isBottomConstraint();
-                Log.i(TAG, "onViewCreated 03:" + leftConstraint + " " + topConstraint + " " + rightConstraint
-                        + " " +
-                        bottomConstraint);
-
-                constraint.bottomToTopOfView(0, 0);
-                leftConstraint = constraint.isLeftConstraint();
-                topConstraint = constraint.isTopConstraint();
-                rightConstraint = constraint.isRightConstraint();
-                bottomConstraint = constraint.isBottomConstraint();
-                Log.i(TAG, "onViewCreated 04:" + leftConstraint + " " + topConstraint + " " + rightConstraint
-                        + " " +
-                        bottomConstraint);
-            }
-        });
+        //        mConstraintLayout.post(new Runnable() {
+        //            @Override
+        //            public void run() {
+        //
+        //                Constraint constraint = mConstraintLayout.obtainConstraint();
+        //
+        //                constraint.leftToLeftOfView(0, 0);
+        //                boolean leftConstraint = constraint.isLeftConstraint();
+        //                boolean topConstraint = constraint.isTopConstraint();
+        //                boolean rightConstraint = constraint.isRightConstraint();
+        //                boolean bottomConstraint = constraint.isBottomConstraint();
+        //                Log.i(TAG, "onViewCreated 01:" + leftConstraint + " " + topConstraint + " " +
+        // rightConstraint
+        //                        + " " +
+        //                        bottomConstraint);
+        //
+        //                constraint.rightToRightOfView(0, 0);
+        //                leftConstraint = constraint.isLeftConstraint();
+        //                topConstraint = constraint.isTopConstraint();
+        //                rightConstraint = constraint.isRightConstraint();
+        //                bottomConstraint = constraint.isBottomConstraint();
+        //                Log.i(TAG, "onViewCreated 02:" + leftConstraint + " " + topConstraint + " " +
+        // rightConstraint
+        //                        + " " +
+        //                        bottomConstraint);
+        //
+        //                constraint.topToTopOfView(0, 0);
+        //                leftConstraint = constraint.isLeftConstraint();
+        //                topConstraint = constraint.isTopConstraint();
+        //                rightConstraint = constraint.isRightConstraint();
+        //                bottomConstraint = constraint.isBottomConstraint();
+        //                Log.i(TAG, "onViewCreated 03:" + leftConstraint + " " + topConstraint + " " +
+        // rightConstraint
+        //                        + " " +
+        //                        bottomConstraint);
+        //
+        //                constraint.bottomToTopOfView(0, 0);
+        //                leftConstraint = constraint.isLeftConstraint();
+        //                topConstraint = constraint.isTopConstraint();
+        //                rightConstraint = constraint.isRightConstraint();
+        //                bottomConstraint = constraint.isBottomConstraint();
+        //                Log.i(TAG, "onViewCreated 04:" + leftConstraint + " " + topConstraint + " " +
+        // rightConstraint
+        //                        + " " +
+        //                        bottomConstraint);
+        //            }
+        //        });
 
     }
 
@@ -130,17 +133,26 @@ public class TestFragment extends Fragment {
                 case 0:
 
                     return getTextView();
-
                 default:
+
                     break;
             }
 
-            return getTextView();
+            TextView view = getTextView();
+            view.setText("Test");
+            return view;
         }
 
 
         @Override
         public ConstraintLayout.LayoutParams generateLayoutParamsTo(int position) {
+
+            if (position > 0) {
+                return new ConstraintLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+            }
 
             return super.generateLayoutParamsTo(position);
         }
@@ -156,15 +168,29 @@ public class TestFragment extends Fragment {
                     break;
 
                 case 1:
+                    constraint.leftToLeftOfView(0, 0).bottomToTopOfView(0, 0);
                     break;
 
                 case 2:
+                    constraint.rightToRightOfView(0, 0).bottomToTopOfView(0, 0);
                     break;
 
                 case 3:
+                    constraint.leftToLeftOfView(0, 0).topToBottomOfView(0, 0);
                     break;
 
                 case 4:
+                    constraint.rightToRightOfView(0, 0).topToBottomOfView(0, 0);
+                    break;
+
+                case 5:
+                    constraint.leftToLeftOfParent(0).rightToRightOfParent(0).bottomToTopOfParent(200)
+                            .setHorizontalBias(0.5f);
+                    break;
+
+                case 6:
+                    constraint.topToTopOfParent(0).bottomToBottomOfParent(0).rightToRightOfParent(0)
+                            .setVerticalBias(0.5f);
                     break;
                 default:
                     break;
@@ -188,7 +214,7 @@ public class TestFragment extends Fragment {
         @Override
         public int getChildCount() {
 
-            return 5;
+            return 7;
         }
     }
 
