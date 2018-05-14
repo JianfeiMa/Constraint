@@ -18,9 +18,15 @@ dependencies {
 
 ## 简介
 
-使用约束构建布局,类似[ConstraintLayout \| Android Developers](https://developer.android.com/reference/android/support/constraint/ConstraintLayout.html),使用 `adpter` 适配界面,可以简单的实现任何view之间位置相关界面,性能优越,测量之后就已经知道view的布局位置,简化布局操作,节省内存,只记录对view的操作,没有实体类保存信息.配置灵活,每次操作之前都会询问用户.
+使用约束构建布局,类似[ConstraintLayout \| Android Developers](https://developer.android.com/reference/android/support/constraint/ConstraintLayout.html),
 
-### 示例01
+不同的是使用 `adpter` 适配界面,在测量时生成view并布局,一次测量完成传统的view测量布局两个步骤,
+
+可以简单的实现任何view之间位置相关界面,性能优越,测量之后就已经知道view的布局位置,简化布局操作,节省内存,只记录对view的操作,没有实体类保存信息.
+
+配置灵活,每次操作(测量/布局)之前都会询问用户.
+
+### 可以简单的实现如下布局(也可以根据数据动态生成,每次页面都不一样)
 
 ![](img/pic01.gif)
 
@@ -30,9 +36,9 @@ dependencies {
 
 ---
 
-![](img/pic03.gif)
 
-### 约束
+
+### 约束介绍
 
 [Constraint](https://github.com/threekilogram/Constraint/blob/master/constraintlayout/src/main/java/com/example/constraintlayout/Constraint.java) : 约束,用来描述描述一块儿区域,限制view位于描述的区域
 
@@ -69,7 +75,7 @@ constraint.leftToLeftOfParent(50)		--> 约束至父布局
 
 ![](img/pic06.gif)
 
-## 需要使用一个[BaseConstraintAdapter](https://github.com/threekilogram/Constraint/blob/master/constraintlayout/src/main/java/com/example/constraintlayout/adapter/BaseConstraintAdapter.java)适配界面
+## 使用[BaseConstraintAdapter](https://github.com/threekilogram/Constraint/blob/master/constraintlayout/src/main/java/com/example/constraintlayout/adapter/BaseConstraintAdapter.java)适配界面
 
 ```
 private class SimpleAdapter extends BaseConstraintAdapter {
@@ -126,29 +132,41 @@ private class SimpleAdapter extends BaseConstraintAdapter {
 }
 ```
 
-### 配置
+### 监听测量布局过程
 
 * adapter 支持布局询问操作
 
 ```
+// 测量之前回调
+public void beforeMeasure(int position, View view) {
+
+	// 可以用来设置view状态/数据
+}
+
+// 测量之后回调
+public void afterMeasure(int position, View view) {
+
+	
+}
+
 // 布局之前回调
 @Override
 public void beforeLayout(int position, View view) {
-    super.beforeLayout(position, view);
-	// 初始化操作
+ 
+	// 可以用来初始化操作
 }
 
 // 布局之后回调
 @Override
 public void afterLayout(int position, View view) {
-    super.afterLayout(position, view);
 
-	// 设置监听,或者开始动画
+	// 可以用来设置监听,或者开始动画
 }
 ```
 
-* 控制界面刷新过程
-	* 当子view调用 `requestLayout()` 时,父布局界面会刷新重新布局,而此布局并不需要全部刷新界面可以使用 `com.example.constraintlayout.ConstraintLayout.OnRelayoutListener`控制刷新过程
+## 控制界面刷新过程
+	
+* 当子view调用 `requestLayout()` 时,父布局界面会刷新重新布局,而此布局并不需要全部刷新界面可以使用 `com.example.constraintlayout.ConstraintLayout.OnRelayoutListener`控制刷新过程
 
 ![](img/pic07.gif)
 
@@ -171,7 +189,7 @@ mConstraintLayout.setOnRelayoutListener(new ConstraintLayout.OnRelayoutListener(
 });
 ```
 
-* 更新约束
+## 更新一个view的布局约束
 
 ```
 Constraint constraint = mConstraintLayout.obtainConstraint();
@@ -181,7 +199,7 @@ mConstraintLayout.updateConstraint(1, constraint);
 
 ![](img/pic08.gif)
 
-* 临时添加/删除一个view
+## 临时添加/删除一个view
 
 ```
 TextView view = getTextView(100);
