@@ -735,6 +735,38 @@ public class Constraint {
 
 
     /**
+     * 平移至坐标位置
+     *
+     * @param newX x位置,left将会移动到此
+     * @return 约束
+     */
+    public Constraint translateOnLeftTo(int newX) {
+
+        int offset = newX - left;
+        left = newX;
+        right += offset;
+
+        return this;
+    }
+
+
+    /**
+     * 平移至坐标位置
+     *
+     * @param newX x位置,right将会移动到此
+     * @return 约束
+     */
+    public Constraint translateOnRightTo(int newX) {
+
+        int offset = newX - right;
+        left += offset;
+        right = newX;
+
+        return this;
+    }
+
+
+    /**
      * y方向平移约束
      *
      * @param offset 偏移量
@@ -744,6 +776,38 @@ public class Constraint {
 
         top += offset;
         bottom += offset;
+        return this;
+    }
+
+
+    /**
+     * 平移至坐标位置
+     *
+     * @param newY y位置,top将会移动到此
+     * @return 约束
+     */
+    public Constraint translateOnTopTo(int newY) {
+
+        int offset = newY - top;
+        top = newY;
+        bottom += offset;
+
+        return this;
+    }
+
+
+    /**
+     * 平移至坐标位置
+     *
+     * @param newY y位置,top将会移动到此
+     * @return 约束
+     */
+    public Constraint translateOnBottomTo(int newY) {
+
+        int offset = newY - bottom;
+        top += offset;
+        bottom = newY;
+
         return this;
     }
 
@@ -772,7 +836,7 @@ public class Constraint {
     /**
      * 检查该约束是否合法,合法:right>=left && bottom>=top
      */
-    public void check(View view) {
+    public void check(View view, int position) {
 
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) view.getLayoutParams();
 
@@ -794,7 +858,7 @@ public class Constraint {
 
         if (!legal) {
             String message = " right must >= left, bottom must >= top, current is: left=%d ," +
-                    "top=%d ,right=%d , bottom=%d";
+                    "top=%d ,right=%d , bottom=%d ; " + view.toString() + " layoutPosition: " + position;
             String format = String.format(Locale.CHINA, message, left, top, right, bottom);
             throw new RuntimeException(format);
         }
@@ -944,6 +1008,8 @@ public class Constraint {
         return weight * cellHeight;
     }
 
+    //============================ size support ============================
+
 
     /**
      * 得到一个view的宽度
@@ -966,6 +1032,78 @@ public class Constraint {
     public int getViewHeight(int position) {
 
         return mParent.getViewBottom(position) - mParent.getViewTop(position);
+    }
+
+
+    /**
+     * 父布局宽度,没有padding值
+     *
+     * @return parent width
+     */
+    public int getParentWidth() {
+
+        return mParent.getParentRight() - mParent.getParentLeft();
+    }
+
+
+    /**
+     * 父布局高度,没有padding值
+     *
+     * @return parent height
+     */
+    public int getParentHeight() {
+
+        return mParent.getParentBottom() - mParent.getParentTop();
+    }
+
+    //============================ view location support ============================
+
+
+    /**
+     * view's left
+     *
+     * @param position view layout position
+     * @return view left
+     */
+    public int getViewLeft(int position) {
+
+        return mParent.getViewLeft(position);
+    }
+
+
+    /**
+     * view's top
+     *
+     * @param position layout position
+     * @return view's top
+     */
+    public int getViewTop(int position) {
+
+        return mParent.getViewTop(position);
+    }
+
+
+    /**
+     * view's right
+     *
+     * @param position layout position
+     * @return view's right
+     */
+    public int getViewRight(int position) {
+
+        return mParent.getViewRight(position);
+    }
+
+
+    /**
+     * view's bottom
+     *
+     * @param position layout position
+     * @return view's bottom
+     */
+    public int getViewBottom(int position) {
+
+        return mParent.getViewBottom(position);
     }
 
 }

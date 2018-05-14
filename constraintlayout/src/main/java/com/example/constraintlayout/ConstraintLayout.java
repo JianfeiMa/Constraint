@@ -338,7 +338,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         /* 1. 先测量 */
 
         Constraint constraint = adapter.generateConstraintTo(position, obtainConstraint());
-        constraint.check(child);
+        constraint.check(child, position);
         int widthSpec = constraint.makeWidthSpec(child);
         int heightSpec = constraint.makeHeightSpec(child);
 
@@ -360,14 +360,13 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     /**
      * 使用约束测量单个view
      */
-    private LayoutParams measureViewWithConstraint(BaseConstraintAdapter adapter,
-                                                   int i,
+    private LayoutParams measureViewWithConstraint(int position,
                                                    View child,
                                                    Constraint constraint) {
 
         /* 1. 先测量 */
 
-        constraint.check(child);
+        constraint.check(child, position);
         int widthSpec = constraint.makeWidthSpec(child);
         int heightSpec = constraint.makeHeightSpec(child);
         measureChild(child,
@@ -689,7 +688,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
             return;
         }
         Constraint constraint = mAdapter.generateConstraintTo(position, obtainConstraint());
-        constraint.check(child);
+        constraint.check(child, position);
         int widthSpec = constraint.makeWidthSpec(child);
         int heightSpec = constraint.makeHeightSpec(child);
         measureChild(child,
@@ -714,7 +713,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
             return;
         }
 
-        constraint.check(child);
+        constraint.check(child, position);
         int widthSpec = constraint.makeWidthSpec(child);
         int heightSpec = constraint.makeHeightSpec(child);
         measureChild(child,
@@ -780,7 +779,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
     public void updateConstraint(int position, View view, Constraint constraint) {
 
-        measureViewWithConstraint(mAdapter, position, view, constraint);
+        measureViewWithConstraint(position, view, constraint);
         if (view.getVisibility() != GONE) {
             layoutChildWithLayoutParams(mAdapter, position, view);
         }

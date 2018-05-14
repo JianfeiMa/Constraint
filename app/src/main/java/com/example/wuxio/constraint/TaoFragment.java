@@ -18,6 +18,9 @@ import com.example.constraintlayout.Constraint;
 import com.example.constraintlayout.ConstraintLayout;
 import com.example.constraintlayout.adapter.BaseConstraintAdapter;
 
+import java.util.Locale;
+import java.util.Random;
+
 /**
  * @author wuxio 2018-05-13:19:23
  */
@@ -110,18 +113,65 @@ public class TaoFragment extends Fragment {
                 view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
                 view.setText("头条:买一送一,买二送二,买三送三");
                 return view;
+            } else if (position == 14 || position == 17) {
+
+                TextView view = getNoGroundTextView();
+                view.setText("好货");
+                return view;
+            } else if (position <= 19) {
+
+                return getImageView();
+            } else if (position == 20) {
+
+                TextView textView = getTextView();
+                textView.setText("广告 1");
+                return textView;
+            } else if (position <= 25) {
+
+                TextView view = getTextView();
+                int index = position - 20;
+                String s = String.format(Locale.CHINA, "直播 %d", index);
+                view.setText(s);
+                return view;
+            } else if (position == 26) {
+
+                TextView textView = getNoGroundTextView();
+                textView.setText("好店推荐");
+                return textView;
+            } else if (position <= 35) {
+
+                TextView textView = getTextView();
+                String s = String.format(Locale.CHINA, "好店 %d", position - 26);
+                textView.setText(s);
+                return textView;
+            } else if (position == 36) {
+
+                TextView view = getNoGroundTextView();
+                view.setText("猜你喜欢");
+                return view;
+            } else if (position <= 42) {
+
+                TextView textView = getTextView();
+                String s = String.format(Locale.CHINA, "推荐 %d", position - 36);
+                textView.setText(s);
+                return textView;
             }
 
-            return null;
+            return getTextView();
         }
 
 
         @Override
         public ConstraintLayout.LayoutParams generateLayoutParamsTo(int position) {
 
-            if (position == 12 || position == 13) {
+            if (position == 12 || position == 13 || position == 36) {
                 return new ConstraintLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+            } else if (position == 14 || position == 17 || position == 26) {
+                return new ConstraintLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
                 );
             }
@@ -164,7 +214,109 @@ public class TaoFragment extends Fragment {
 
                 constraint.leftToRightOfView(11, 20)
                         .rightToRightOfParent(-20)
-                        .bottomToBottomOfView(11, 0,20);
+                        .bottomToBottomOfView(11, 0);
+            } else if (position == 14) {
+
+                constraint.leftToLeftOfParent(20).topToBottomOfView(13, 20);
+            } else if (position == 15) {
+
+                constraint.topToBottomOfView(14, 5, 200)
+                        .leftToLeftOfParent(20, 280);
+            } else if (position == 16) {
+
+                constraint.leftToRightOfView(15, 5)
+                        .rightToLeftOfParent(constraint.getParentWidth() / 2 - 5)
+                        .topToTopOfView(14, 0)
+                        .bottomToBottomOfView(15, 0);
+
+            } else if (position == 17) {
+
+                constraint.copyFrom(14).translateOnLeftTo(constraint.getParentWidth() / 2 + 5);
+            } else if (position == 18) {
+
+                constraint.copyFrom(15).translateOnLeftTo(constraint.getParentWidth() / 2 + 5);
+            } else if (position == 19) {
+
+                constraint.copyFrom(16).translateOnRightTo(constraint.getParentWidth() - 20);
+            } else if (position == 20) {
+
+                constraint.topToBottomOfView(19, 20, 360)
+                        .leftToLeftOfParent(0)
+                        .rightToRightOfParent(0);
+
+            } else if (position == 21) {
+
+                int size = constraint.getWeightWidth(3, 2);
+                constraint.leftToLeftOfParent(0, size)
+                        .topToBottomOfView(20, 20, 300);
+            } else if (position == 22) {
+
+                constraint.leftToRightOfView(21, 2)
+                        .topToTopOfView(21, 0)
+                        .bottomToBottomOfView(21, 0);
+            } else if (position == 23) {
+                int size = constraint.getWeightWidth(3, 1, 2 * 2);
+                constraint.leftToLeftOfParent(0, size)
+                        .topToBottomOfView(22, 2, constraint.getViewHeight(21));
+            } else if (position == 24) {
+
+                constraint.leftToRightOfView(23, 2)
+                        .rightToRightOfView(21, 0)
+                        .topToTopOfView(23, 0)
+                        .bottomToBottomOfView(23, 0);
+            } else if (position == 25) {
+
+                constraint.leftToRightOfView(24, 2)
+                        .rightToRightOfParent(0)
+                        .topToTopOfView(24, 0)
+                        .bottomToBottomOfView(24, 1);
+            } else if (position == 26) {
+
+                constraint.leftToLeftOfParent(0)
+                        .topToBottomOfView(25, 20);
+            } else if (position == 27) {
+
+                int size = constraint.getWeightWidth(3, 1, 2 * 2);
+                constraint.leftToLeftOfParent(0, size)
+                        .topToBottomOfView(position - 1, 20, size);
+
+            } else if (position == 28) {
+
+                constraint.copyFrom(position - 1)
+                        .translateX(constraint.getViewWidth(position - 1) + 2);
+            } else if (position == 29) {
+
+                constraint.leftToRightOfView(position - 1, 2)
+                        .rightToRightOfParent(0)
+                        .topToTopOfView(position - 1, 0)
+                        .bottomToBottomOfView(position - 1, 0);
+            } else if (position <= 35) {
+
+                constraint.copyFrom(position - 3)
+                        .translateY(constraint.getViewHeight(position - 3) + 2);
+            } else if (position == 36) {
+
+                constraint.leftToLeftOfParent(0)
+                        .rightToRightOfParent(0)
+                        .topToBottomOfView(position - 1, 20);
+            } else if (position == 37) {
+
+                constraint.leftToLeftOfParent(0)
+                        .rightToLeftOfParent(constraint.getParentWidth() / 2 - 10)
+                        .topToBottomOfView(position - 1, 20, 400);
+
+            } else if (position == 38) {
+
+                constraint.leftToLeftOfParent(constraint.getParentWidth() / 2 + 10)
+                        .rightToRightOfParent(0)
+                        .topToBottomOfView(position - 2, 20, 300);
+            } else if (position <= 42) {
+
+                Random random = new Random();
+                int nextInt = random.nextInt(200);
+                constraint.copyFrom(position - 2)
+                        .translateY(constraint.getViewHeight(position - 2)+10)
+                        .translate(0, 0, 0, nextInt);
             }
 
             return constraint;
@@ -206,7 +358,13 @@ public class TaoFragment extends Fragment {
                 case 10:
                     ((ImageView) view).setImageResource(R.drawable.b_basketball);
                     break;
-
+                case 15:
+                case 18:
+                    ((ImageView) view).setImageResource(R.drawable.ace);
+                    break;
+                case 16:
+                case 19:
+                    ((ImageView) view).setImageResource(R.drawable.a15456);
                 default:
                     break;
             }
@@ -216,7 +374,7 @@ public class TaoFragment extends Fragment {
         @Override
         public int getChildCount() {
 
-            return 14;
+            return 43;
         }
     }
 
