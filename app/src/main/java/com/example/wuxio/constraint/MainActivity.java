@@ -107,11 +107,11 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case R.id.menu02:
-                    changeFragment(mFragments[2]);
+                    changeFragment(mFragments[3]);
                     break;
 
                 case R.id.menu03:
-                    changeFragment(mFragments[3]);
+                    changeFragment(mFragments[2]);
                     break;
 
                 default:
