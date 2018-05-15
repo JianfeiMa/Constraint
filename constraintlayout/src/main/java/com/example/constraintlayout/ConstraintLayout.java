@@ -481,27 +481,14 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     //============================ 重新布局 ============================
 
 
-    /**
-     * 重新测量该位置的view
-     *
-     * @param position 需要更新布局的view的位置
-     */
-    public void remeasureView(int position) {
+    @Override
+    public void requestLayout() {
 
-        View child = getChildAt(position);
-        if (child == null) {
+        if (addOrRemoveExtraView) {
             return;
         }
-        Constraint constraint = mAdapter.generateConstraintTo(position, obtainConstraint());
-        constraint.check(child, position);
-        int widthSpec = constraint.makeWidthSpec(child);
-        int heightSpec = constraint.makeHeightSpec(child);
-        measureChild(child,
-                widthSpec,
-                heightSpec
-        );
 
-        setChildLayoutParams(constraint, child);
+        super.requestLayout();
     }
 
 
