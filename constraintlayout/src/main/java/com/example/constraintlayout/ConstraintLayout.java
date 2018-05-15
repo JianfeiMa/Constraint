@@ -19,7 +19,6 @@ import java.util.List;
  */
 public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
-
     /**
      * adapter 用于使用约束布局
      */
@@ -35,12 +34,6 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
      */
     private int mParentRight;
     private int mParentBottom;
-
-
-    /**
-     * 监听,用于{@link #requestLayout()}中调用,询问用户是哪个view需要更新布局
-     */
-    private OnRelayoutListener mOnRelayoutListener;
 
 
     public ConstraintLayout(Context context) {
@@ -102,7 +95,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
         if (mAdapter != null) {
             mAdapter = adapter;
-            requestLayout();
+            super.requestLayout();
         } else {
 
             mAdapter = adapter;
@@ -133,100 +126,6 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         setAdapter(new ListAdapter(constraintOperators));
     }
 
-    //============================记录布局状态,用于OnRelayoutListener============================
-
-    /**
-     * 0位为1表示已经测量过
-     * 1位为1表示已经确定尺寸
-     * 2位为1表示已经layout
-     * 3位为1表示有view需要更新布局
-     * 4位为1表示view reMeasured
-     * 5位为1表示view reLayouted
-     */
-    private int layoutState = 0;
-
-
-    /**
-     * 调用后标记{@link #onMeasure(int, int)}过
-     */
-    private void setMeasured() {
-
-        layoutState |= 1;
-    }
-
-
-    /**
-     * 调用后标记{@link #onSizeChanged(int, int, int, int)}过
-     */
-    private void setSizeChanged() {
-
-        layoutState |= 0b10;
-    }
-
-
-    /**
-     * 调用后标记{@link #onLayout(boolean, int, int, int, int)}过
-     */
-    private void setLayouted() {
-
-        layoutState |= 0b100;
-    }
-
-
-    /**
-     * 调用后标记{@link #requestLayout()}调用了
-     */
-    private void setReLayoutView() {
-
-        layoutState |= 0b1000;
-    }
-
-
-    /**
-     * 调用后标记{@link OnRelayoutListener#onRemeasure(ConstraintLayout)}过
-     */
-    private void setRemeasured() {
-
-        layoutState |= 0b10000;
-    }
-
-
-    /**
-     * 调用后标记{@link OnRelayoutListener#onRelayout(ConstraintLayout)}过
-     */
-    private void setRelayouted() {
-
-        layoutState |= 0b100000;
-    }
-
-
-    /**
-     * @return true 布局已经初始化
-     */
-    private boolean isFirstLayoutFinished() {
-
-        return (layoutState & 0b111) == 0b111;
-    }
-
-
-    /**
-     * @return 需要更新布局
-     */
-    private boolean hasViewNeedReLayout() {
-
-        return (layoutState & 0b1000) == 0b1000;
-    }
-
-
-    /**
-     * 重置状态为没有view需要更新布局
-     */
-    private void finishRelayout() {
-
-        layoutState &= 0b111;
-
-    }
-
     //============================测量布局过程============================
 
 
@@ -239,19 +138,6 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
                     MeasureSpec.getSize(heightMeasureSpec)
             );
             return;
-        }
-
-        if (hasViewNeedReLayout()) {
-
-            setMeasuredDimension(getWidth(), getHeight());
-
-            if (mOnRelayoutListener != null) {
-                boolean remeasure = mOnRelayoutListener.onRemeasure(this);
-                setRemeasured();
-                if (!remeasure) {
-                    return;
-                }
-            }
         }
 
         int widthFromParent = MeasureSpec.getSize(widthMeasureSpec);
@@ -325,8 +211,6 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         }
 
         setMeasuredDimension(width, height);
-
-        setMeasured();
     }
 
 
@@ -503,37 +387,14 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-
-        super.onSizeChanged(w, h, oldw, oldh);
-        setSizeChanged();
-    }
-
-
-    @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
         if (mAdapter == null) {
             return;
         }
 
-        /* 重新布局一个view */
-
-        if (hasViewNeedReLayout()) {
-
-            if (mOnRelayoutListener != null) {
-                boolean relayout = mOnRelayoutListener.onRelayout(this);
-                setRelayouted();
-                finishRelayout();
-                if (!relayout) {
-                    return;
-                }
-            }
-
-            finishRelayout();
-        }
-
         BaseConstraintAdapter adapter = mAdapter;
+
         int count = adapter.getChildCount();
         for (int i = 0; i < count; i++) {
 
@@ -545,8 +406,6 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
             layoutChildWithLayoutParams(adapter, i, child);
         }
-
-        setLayouted();
     }
 
 
@@ -619,65 +478,11 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         addOrRemoveExtraView = false;
     }
 
-
-    /**
-     * 因为该Layout是静态布局,布局之后,调用该方法,没有必要更新全部view的布局,根据情况调用不同API,更新布局
-     *
-     * 如果需要更新一个view的尺寸调用{@link #updateConstraint(int, Constraint)},
-     * 如果是{@link android.support.v4.view.ViewPager}这种需要不断请求重新布局的view,
-     * 设置{@link #setOnRelayoutListener(OnRelayoutListener)}监听
-     */
-    @Override
-    public void requestLayout() {
-
-        /* 额外添加删除view时不重新布局 */
-
-        if (addOrRemoveExtraView) {
-            return;
-        }
-
-        if (isFirstLayoutFinished()) {
-            setReLayoutView();
-        }
-
-        super.requestLayout();
-    }
-
-    //============================ relayout request ============================
-
-    /**
-     * 当{@link #requestLayout()}调用时会回调该接口,用来询问用户哪个view需要更新
-     */
-    public interface OnRelayoutListener {
-
-        /**
-         * 重新测量view
-         *
-         * @param layout parent
-         * @return true: 将会全部重新测量
-         */
-        boolean onRemeasure(ConstraintLayout layout);
-
-        /**
-         * 重新布局view
-         *
-         * @param layout parent
-         * @return true :将会全部重新布局
-         */
-        boolean onRelayout(ConstraintLayout layout);
-    }
-
-
-    public void setOnRelayoutListener(OnRelayoutListener onRelayoutListener) {
-
-        mOnRelayoutListener = onRelayoutListener;
-    }
-
     //============================ 重新布局 ============================
 
 
     /**
-     * 重新测量该位置的view,需要和{@link OnRelayoutListener#onRemeasure(ConstraintLayout)}配合使用
+     * 重新测量该位置的view
      *
      * @param position 需要更新布局的view的位置
      */
@@ -701,7 +506,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
 
     /**
-     * 重新测量该位置的view,需要和{@link OnRelayoutListener#onRemeasure(ConstraintLayout)}配合使用
+     * 重新测量该位置的view
      *
      * @param position   需要更新布局的view的位置
      * @param constraint 新的约束
@@ -726,8 +531,6 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
 
     /**
-     * 重新测量该位置的view,需要和{@link OnRelayoutListener#onRelayout(ConstraintLayout)}配合使用
-     *
      * @param position 需要更新布局的view的位置
      */
     public void relayoutView(int position) {

@@ -11,6 +11,10 @@
                 android:title="示例2"/>
 
         <item
+                android:id="@+id/menu03"
+                android:title="recycler"/>
+
+        <item
                 android:id="@+id/menu02"
                 android:title="test"/>
 

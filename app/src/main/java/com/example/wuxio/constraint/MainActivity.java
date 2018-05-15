@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         Fragment[] mFragments = {
                 YunFragment.newInstance(),
                 TaoFragment.newInstance(),
+                RecyclerFragment.newInstance(),
                 TestFragment.newInstance(),
         };
 
@@ -107,6 +108,10 @@ public class MainActivity extends AppCompatActivity {
 
                 case R.id.menu02:
                     changeFragment(mFragments[2]);
+                    break;
+
+                case R.id.menu03:
+                    changeFragment(mFragments[3]);
                     break;
 
                 default:
