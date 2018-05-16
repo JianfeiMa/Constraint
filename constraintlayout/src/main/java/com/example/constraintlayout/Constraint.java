@@ -860,7 +860,11 @@ public class Constraint {
             String message = " right must >= left, bottom must >= top, current is: left=%d ," +
                     "top=%d ,right=%d , bottom=%d ; " + view.toString() + " layoutPosition: " + position;
             String format = String.format(Locale.CHINA, message, left, top, right, bottom);
-            throw new RuntimeException(format);
+            try {
+                throw new RuntimeException(format);
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
         }
     }
 
