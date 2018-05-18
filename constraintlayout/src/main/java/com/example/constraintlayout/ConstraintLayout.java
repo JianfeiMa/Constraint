@@ -391,14 +391,14 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
 
     /**
-     * 使用该方法可以测量出一个view完全显示需要的最小尺寸,对一个view调用该方法之后,
+     * 使用该方法可以测量出一个view完全显示需要的最小尺寸(不包括margin),对一个view调用该方法之后,
      * 可以使用{@link View#getMeasuredWidth()}和{@link View#getMeasuredHeight()} ()}读取测量的值,
      * 该方法只测量view,一般用来判断剩余viewGroup剩余空间能否显示的下view
      */
     public void measureAtMostSize(View view) {
 
         int measureSpec = MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE >> 1, MeasureSpec.AT_MOST);
-        measureChildWithMargins(view, measureSpec, 0, measureSpec, 0);
+        measureChild(view, measureSpec, measureSpec);
 
     }
 

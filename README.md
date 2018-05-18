@@ -50,9 +50,13 @@ dependencies {
 
 ![](img/pic10.gif)
 
+#### 流式布局效果
+
+![](img/pic11.gif)
+
 ### 约束介绍
 
-[Constraint](https://github.com/threekilogram/Constraint/blob/master/constraintlayout/src/main/java/com/example/constraintlayout/Constraint.java) : 约束,用来描述描述一块儿区域,限制view位于描述的区域
+[Constraint](https://github.com/threekilogram/Constraint/blob/master/constraintlayout/src/main/java/com/example/constraintlayout/Constraint.java) : 约束,用来描述描述一块儿区域,限制view位于此区域
 
 * 可以相对父布局
 
