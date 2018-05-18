@@ -231,13 +231,13 @@ public class TaoFragment extends Fragment {
 
             } else if (position == 17) {
 
-                constraint.copyFrom(14).translateOnLeftTo(constraint.getParentWidth() / 2 + 5);
+                constraint.copyFrom(14).translateLeftTo(constraint.getParentWidth() / 2 + 5);
             } else if (position == 18) {
 
-                constraint.copyFrom(15).translateOnLeftTo(constraint.getParentWidth() / 2 + 5);
+                constraint.copyFrom(15).translateLeftTo(constraint.getParentWidth() / 2 + 5);
             } else if (position == 19) {
 
-                constraint.copyFrom(16).translateOnRightTo(constraint.getParentWidth() - 20);
+                constraint.copyFrom(16).translateRightTo(constraint.getParentWidth() - 20);
             } else if (position == 20) {
 
                 constraint.topToBottomOfView(19, 20, 360)

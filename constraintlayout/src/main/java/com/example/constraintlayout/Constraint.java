@@ -36,12 +36,12 @@ public class Constraint {
     float verticalBias   = 0f;
 
     /**
-     * 第3位表示left是否有约束,1为有,0为没有
-     * 第2位表示top是否有约束,1为有,0为没有
-     * 第1位表示right是否有约束,1为有,0为没有
-     * 第0位表示bottom是否有约束,1为有,0为没有
+     * 3位表示left是否有约束,1为有,0为没有
+     * 2位表示top是否有约束,1为有,0为没有
+     * 1位表示right是否有约束,1为有,0为没有
+     * 0位表示bottom是否有约束,1为有,0为没有
      */
-    private int whichEdgeConstraint;
+    private int stateFlags;
 
     /**
      * 一个支持约束的布局
@@ -87,7 +87,7 @@ public class Constraint {
         horizontalBias = 0f;
         verticalBias = 0f;
 
-        whichEdgeConstraint = 0;
+        stateFlags = 0;
     }
 
 
@@ -171,51 +171,63 @@ public class Constraint {
     //============================ 标记受约束的边 ============================
 
 
-    public void setLeftConstraint() {
+    private void setLeftConstraint() {
 
-        whichEdgeConstraint |= 0b1;
+        stateFlags |= 0b1;
     }
 
 
-    public void setTopConstraint() {
+    private void setTopConstraint() {
 
-        whichEdgeConstraint |= 0b10;
+        stateFlags |= 0b10;
     }
 
 
-    public void setRightConstraint() {
+    private void setRightConstraint() {
 
-        whichEdgeConstraint |= 0b100;
+        stateFlags |= 0b100;
     }
 
 
-    public void setBottomConstraint() {
+    private void setBottomConstraint() {
 
-        whichEdgeConstraint |= 0b1000;
+        stateFlags |= 0b1000;
     }
 
 
-    public boolean isLeftConstraint() {
+    /**
+     * @return true: 以left为基准,layout
+     */
+    boolean isLeftConstraint() {
 
-        return (whichEdgeConstraint & 0b1) == 1;
+        return (stateFlags & 0b1) == 1;
     }
 
 
-    public boolean isTopConstraint() {
+    /**
+     * @return true: 以top为基准,layout
+     */
+    boolean isTopConstraint() {
 
-        return (whichEdgeConstraint >> 1 & 0b1) == 1;
+        return (stateFlags >> 1 & 0b1) == 1;
     }
 
 
-    public boolean isRightConstraint() {
+    /**
+     * @return true: 以right为基准,layout
+     */
+    boolean isRightConstraint() {
 
-        return (whichEdgeConstraint >> 2 & 0b1) == 1;
+        return (stateFlags >> 2 & 0b1) == 1;
     }
 
 
-    public boolean isBottomConstraint() {
+    /**
+     * @return true: 以bottom为基准,layout
+     */
+    boolean isBottomConstraint() {
 
-        return (whichEdgeConstraint >> 3 & 0b1) == 1;
+        return (stateFlags >> 3 & 0b1) == 1;
     }
 
     //============================约束至Parent============================
@@ -737,10 +749,10 @@ public class Constraint {
     /**
      * 平移至坐标位置
      *
-     * @param newX x位置,left将会移动到此
+     * @param newX x位置,left将会移动到此,也会移动相同距离
      * @return 约束
      */
-    public Constraint translateOnLeftTo(int newX) {
+    public Constraint translateLeftTo(int newX) {
 
         int offset = newX - left;
         left = newX;
@@ -753,10 +765,10 @@ public class Constraint {
     /**
      * 平移至坐标位置
      *
-     * @param newX x位置,right将会移动到此
+     * @param newX x位置,right将会移动到此,left也会移动相同距离
      * @return 约束
      */
-    public Constraint translateOnRightTo(int newX) {
+    public Constraint translateRightTo(int newX) {
 
         int offset = newX - right;
         left += offset;
@@ -783,10 +795,10 @@ public class Constraint {
     /**
      * 平移至坐标位置
      *
-     * @param newY y位置,top将会移动到此
+     * @param newY y位置,top将会移动到此right,bottom也会移动相同距离
      * @return 约束
      */
-    public Constraint translateOnTopTo(int newY) {
+    public Constraint translateTopTo(int newY) {
 
         int offset = newY - top;
         top = newY;
@@ -799,10 +811,10 @@ public class Constraint {
     /**
      * 平移至坐标位置
      *
-     * @param newY y位置,top将会移动到此
+     * @param newY y位置,bottom将会移动到此,top也会移动相同距离
      * @return 约束
      */
-    public Constraint translateOnBottomTo(int newY) {
+    public Constraint translateBottomTo(int newY) {
 
         int offset = newY - bottom;
         top += offset;

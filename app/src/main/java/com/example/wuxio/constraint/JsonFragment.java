@@ -364,7 +364,7 @@ public class JsonFragment extends Fragment {
 
                         /* 换到下一行 */
 
-                        constraint.copyFrom(position - 1).translateY(size + 20).translateOnLeftTo(20);
+                        constraint.copyFrom(position - 1).translateY(size + 20).translateLeftTo(20);
 
                     } else {
 

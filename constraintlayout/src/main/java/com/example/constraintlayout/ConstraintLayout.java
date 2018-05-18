@@ -222,17 +222,17 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         /* 1. 先测量 */
 
         Constraint constraint = adapter.generateConstraintTo(position, obtainConstraint(), child);
+
         constraint.check(child, position);
+
         int widthSpec = constraint.makeWidthSpec(child);
         int heightSpec = constraint.makeHeightSpec(child);
 
         adapter.beforeMeasure(position, child);
-
         measureChild(child,
                 widthSpec,
                 heightSpec
         );
-
         adapter.afterMeasure(position, child);
 
         /* 2. 记录测量之后该view的位置 */
@@ -242,17 +242,19 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
 
     /**
-     * 使用约束测量单个view
+     * 使用约束测量单个view,该方法用于更新约束
      */
-    private LayoutParams measureViewWithConstraint(int position,
-                                                   View child,
-                                                   Constraint constraint) {
+    private void measureViewWithConstraint(int position,
+                                           View child,
+                                           Constraint constraint) {
 
         /* 1. 先测量 */
 
         constraint.check(child, position);
+
         int widthSpec = constraint.makeWidthSpec(child);
         int heightSpec = constraint.makeHeightSpec(child);
+
         measureChild(child,
                 widthSpec,
                 heightSpec
@@ -260,7 +262,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
         /* 2. 记录测量之后该view的位置 */
 
-        return setChildLayoutParams(constraint, child);
+        setChildLayoutParams(constraint, child);
     }
 
 
@@ -417,11 +419,9 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
             View child = getChildAt(i);
 
-            if (child.getVisibility() == GONE) {
-                continue;
+            if (child.getVisibility() == VISIBLE) {
+                layoutChildWithLayoutParams(adapter, i, child);
             }
-
-            layoutChildWithLayoutParams(adapter, i, child);
         }
     }
 
@@ -506,42 +506,6 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         }
 
         super.requestLayout();
-    }
-
-
-    /**
-     * 重新测量该位置的view
-     *
-     * @param position   需要更新布局的view的位置
-     * @param constraint 新的约束
-     */
-    public void remeasureView(int position, Constraint constraint) {
-
-        View child = getChildAt(position);
-        if (child == null) {
-            return;
-        }
-
-        constraint.check(child, position);
-        int widthSpec = constraint.makeWidthSpec(child);
-        int heightSpec = constraint.makeHeightSpec(child);
-        measureChild(child,
-                widthSpec,
-                heightSpec
-        );
-
-        setChildLayoutParams(constraint, child);
-    }
-
-
-    /**
-     * @param position 需要更新布局的view的位置
-     */
-    public void relayoutView(int position) {
-
-        View child = getChildAt(position);
-        LayoutParams params = getChildLayoutParams(child);
-        child.layout(params.left, params.top, params.right, params.bottom);
     }
 
 
