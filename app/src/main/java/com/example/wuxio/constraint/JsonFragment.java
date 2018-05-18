@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.bitmapreader.BitmapReader;
 import com.example.constraintlayout.Constraint;
 import com.example.constraintlayout.ConstraintLayout;
 import com.example.constraintlayout.adapter.BaseConstraintAdapter;
@@ -28,8 +29,7 @@ import java.util.List;
 public class JsonFragment extends Fragment {
 
     private static final String TAG = "JsonFragment";
-    private ConstraintLayout mConstraintLayout;
-    private ViewFromJson     mViewFromJson;
+    private ViewFromJson mViewFromJson;
 
 
     public static JsonFragment newInstance() {
@@ -54,8 +54,10 @@ public class JsonFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         super.onViewCreated(view, savedInstanceState);
-        mConstraintLayout = view.findViewById(R.id.constraint);
-        mConstraintLayout.setAdapter(new ConstraintAdapter());
+        ConstraintLayout constraintLayout = view.findViewById(R.id.constraint);
+        constraintLayout.setAdapter(new ConstraintAdapter());
+
+        /* 模拟解析数据 */
 
         try {
             parseJson();
@@ -67,19 +69,26 @@ public class JsonFragment extends Fragment {
 
     //============================ json 数据 ============================
 
+    /**
+     * 模拟json数据,根据它生成界面
+     */
     public static final String JSON = "{\n" +
-            "\t\"text00\": \"自爱残妆晓镜中，环钗漫篸绿丝丛。须臾日射胭脂颊，一朵红苏旋欲融。\",\n" +
-            "\t\"pic00\": 0,\n" +
-            "\t\"text01\": \"山泉散漫绕阶流，万树桃花映小楼。闲读道书慵未起，水晶帘下看梳头。\",\n" +
-            "\t\"pic01\": 1,\n" +
-            "\t\"pic02\": 2,\n" +
-            "\t\"text02\": \"红罗著压逐时新，吉了花纱嫩麴尘。第一莫嫌材地弱，些些纰缦最宜人。\",\n" +
-            "\t\"pic03\": 3,\n" +
-            "\t\"text03\": \"曾经沧海难为水，除却巫山不是云。取次花丛懒回顾，半缘修道半缘君。\",\n" +
-            "\t\"pic04\": [4, 5, 6],\n" +
-            "\t\"text04\": \"寻常百种花齐发，偏摘梨花与白人。今日江头两三树，可怜和叶度残春。\"\n" +
+            "\t\"text00\":\"自爱残妆晓镜中，环钗漫篸绿丝丛。须臾日射胭脂颊，一朵红苏旋欲融。\",\n" +
+            "\t\"pic00\":0,\n" +
+            "\t\"text01\":\"山泉散漫绕阶流，万树桃花映小楼。闲读道书慵未起，水晶帘下看梳头。\",\n" +
+            "\t\"pic01\":1,\n" +
+            "\t\"pic02\":2,\n" +
+            "\t\"text02\":\"红罗著压逐时新，吉了花纱嫩麴尘。第一莫嫌材地弱，些些纰缦最宜人。\",\n" +
+            "\t\"pic03\":3,\n" +
+            "\t\"text03\":\"曾经沧海难为水，除却巫山不是云。取次花丛懒回顾，半缘修道半缘君。\",\n" +
+            "\t\"pic04\":[4,5,6],\n" +
+            "\t\"text04\":\"寻常百种花齐发，偏摘梨花与白人。今日江头两三树，可怜和叶度残春。\",\n" +
+            "\t\"pic05\":[7,8,9,10,11]\n" +
             "}";
 
+    /**
+     * 模拟图片资源
+     */
     public static final int[] pics = {
             R.drawable.a0,
             R.drawable.a1,
@@ -95,6 +104,13 @@ public class JsonFragment extends Fragment {
             R.drawable.a4,
             R.drawable.a5,
             R.drawable.a6,
+            R.drawable.a0,
+            R.drawable.a1,
+            R.drawable.a2,
+            R.drawable.a3,
+            R.drawable.a4,
+            R.drawable.a5,
+            R.drawable.a6
     };
 
     //============================ bean ============================
@@ -168,6 +184,9 @@ public class JsonFragment extends Fragment {
         }
 
 
+        /**
+         * @return view 数量
+         */
         public int size() {
 
             return mViewInfos.size();
@@ -208,6 +227,9 @@ public class JsonFragment extends Fragment {
     }
 
 
+    /**
+     * 模拟解析数据
+     */
     private void parseJson() {
 
         mViewFromJson = new ViewFromJson();
@@ -252,7 +274,7 @@ public class JsonFragment extends Fragment {
         return imageView;
     }
 
-    //============================ nbl ============================
+    //============================ adapter ============================
 
     private class ConstraintAdapter extends BaseConstraintAdapter {
 
@@ -278,7 +300,7 @@ public class JsonFragment extends Fragment {
 
 
         @Override
-        public ConstraintLayout.LayoutParams generateLayoutParamsTo(int position) {
+        public ConstraintLayout.LayoutParams generateLayoutParamsTo(int position, View view) {
 
             int layoutType = mViewFromJson.getLayoutType(position);
 
@@ -296,12 +318,12 @@ public class JsonFragment extends Fragment {
                 );
             }
 
-            return super.generateLayoutParamsTo(position);
+            return super.generateLayoutParamsTo(position, view);
         }
 
 
         @Override
-        public Constraint generateConstraintTo(int position, Constraint constraint) {
+        public Constraint generateConstraintTo(int position, Constraint constraint, View view) {
 
             mConstraint = constraint;
 
@@ -334,7 +356,22 @@ public class JsonFragment extends Fragment {
 
                 } else {
 
-                    constraint.copyFrom(position - 1).translateX(size + 20);
+                    /* 假设当前view横向排在上一个view的右边,如果超出界面显示区域,那么需要换行 */
+
+                    int rightMaybe = constraint.getViewRight(position - 1) + size + 20;
+
+                    if (rightMaybe > constraint.getParentWidth()) {
+
+                        /* 换到下一行 */
+
+                        constraint.copyFrom(position - 1).translateY(size + 20).translateOnLeftTo(20);
+
+                    } else {
+
+                        /* 横向排在上一个view右侧 */
+
+                        constraint.copyFrom(position - 1).translateX(size + 20);
+                    }
                 }
             }
 
@@ -359,18 +396,27 @@ public class JsonFragment extends Fragment {
 
                     int width = mConstraint.getParentWidth() - 20 * 2;
                     int height = (int) (width * 16f / 9) + 1;
+
                     Integer index = (Integer) mViewFromJson.getViewData(position);
                     int picRes = pics[index];
-                    Bitmap bitmap = BitmapReader.decodeMaxSampledBitmap(getResources(), picRes, width,
-                            height);
+
+                    Bitmap bitmap = BitmapReader.decodeMaxSampledBitmap(
+                            getResources(),
+                            picRes,
+                            width,
+                            height
+                    );
+
                     ((ImageView) view).setImageBitmap(bitmap);
 
                 } else if (layoutType == 1) {
 
                     Integer index = (Integer) mViewFromJson.getViewData(position);
+
                     int size = mConstraint.getWeightWidth(4, 1, 20 * 4);
                     int picRes = pics[index];
                     Bitmap bitmap = BitmapReader.decodeMaxSampledBitmap(getResources(), picRes, size, size);
+
                     ((ImageView) view).setImageBitmap(bitmap);
                 }
             }

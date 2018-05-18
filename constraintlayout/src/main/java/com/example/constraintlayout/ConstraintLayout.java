@@ -173,7 +173,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
             if (child == null) {
 
                 child = adapter.generateViewTo(i);
-                LayoutParams params = adapter.generateLayoutParamsTo(i);
+                LayoutParams params = adapter.generateLayoutParamsTo(i, child);
                 addView(child, params);
             }
 
@@ -221,7 +221,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
         /* 1. 先测量 */
 
-        Constraint constraint = adapter.generateConstraintTo(position, obtainConstraint());
+        Constraint constraint = adapter.generateConstraintTo(position, obtainConstraint(), child);
         constraint.check(child, position);
         int widthSpec = constraint.makeWidthSpec(child);
         int heightSpec = constraint.makeHeightSpec(child);
@@ -384,6 +384,23 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
 
         return params;
     }
+
+    //============================ 测量最小尺寸 ============================
+
+
+    /**
+     * 使用该方法可以测量出一个view完全显示需要的最小尺寸,对一个view调用该方法之后,
+     * 可以使用{@link View#getMeasuredWidth()}和{@link View#getMeasuredHeight()} ()}读取测量的值,
+     * 该方法只测量view,一般用来判断剩余viewGroup剩余空间能否显示的下view
+     */
+    public void measureAtMostSize(View view) {
+
+        int measureSpec = MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE >> 1, MeasureSpec.AT_MOST);
+        measureChildWithMargins(view, measureSpec, 0, measureSpec, 0);
+
+    }
+
+    //============================ layout ============================
 
 
     @Override

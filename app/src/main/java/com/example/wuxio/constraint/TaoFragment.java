@@ -162,7 +162,7 @@ public class TaoFragment extends Fragment {
 
 
         @Override
-        public ConstraintLayout.LayoutParams generateLayoutParamsTo(int position) {
+        public ConstraintLayout.LayoutParams generateLayoutParamsTo(int position, View view) {
 
             if (position == 12 || position == 13 || position == 36) {
                 return new ConstraintLayout.LayoutParams(
@@ -176,12 +176,12 @@ public class TaoFragment extends Fragment {
                 );
             }
 
-            return super.generateLayoutParamsTo(position);
+            return super.generateLayoutParamsTo(position, view);
         }
 
 
         @Override
-        public Constraint generateConstraintTo(int position, Constraint constraint) {
+        public Constraint generateConstraintTo(int position, Constraint constraint, View view) {
 
             if (position == 0) {
                 constraint.leftToLeftOfParent(0)
@@ -315,7 +315,7 @@ public class TaoFragment extends Fragment {
                 Random random = new Random();
                 int nextInt = random.nextInt(200);
                 constraint.copyFrom(position - 2)
-                        .translateY(constraint.getViewHeight(position - 2)+10)
+                        .translateY(constraint.getViewHeight(position - 2) + 10)
                         .translate(0, 0, 0, nextInt);
             }
 

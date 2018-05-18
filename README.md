@@ -26,19 +26,29 @@ dependencies {
 
 配置灵活,每次操作(测量/布局)之前都会询问用户.
 
-### 可以简单的实现如下布局(也可以根据数据动态生成,每次页面都不一样)
+### 可以简单的实现如下布局(也可以根据数据动态生成,即每次打开页面都不一样)
+
+#### 首页效果 01
 
 ![](img/pic01.gif)
 
 ---
 
+#### 首页效果 02
+
 ![](img/pic02.gif)
 
 ---
 
+#### recycler 实现复杂布局
+
 ![](img/pic03.gif)
 
 ---
+
+#### 混排效果(根据json数据生成界面)
+
+![](img/pic10.gif)
 
 ### 约束介绍
 
@@ -166,32 +176,9 @@ public void afterLayout(int position, View view) {
 }
 ```
 
-## 控制界面刷新过程
-	
-* 当子view调用 `requestLayout()` 时,父布局界面会刷新重新布局,而此布局并不需要全部刷新界面可以使用 `com.example.constraintlayout.ConstraintLayout.OnRelayoutListener`控制刷新过程
-
-![](img/pic07.gif)
-
->可以看到界面在 viewPager 轮播时不断重新测量绘制
-
-可以使用 `OnRelayoutListener`控制界面的重新测量布局过程
-
-```
-mConstraintLayout.setOnRelayoutListener(new ConstraintLayout.OnRelayoutListener() {
-    @Override
-    public boolean onRemeasure(ConstraintLayout layout) {
-        layout.remeasureView(0);  --> 只重新测量位置为 0 的view
-        return false;	--> 如果返回 true 将全部重新测量
-    }
-    @Override
-    public boolean onRelayout(ConstraintLayout layout) {
-        layout.relayoutView(0);  --> 只重新布局位置为 0 的view
-        return false;	--> 如果返回 true 将全部重新布局
-    }
-});
-```
-
 ## 更新一个view的布局约束
+
+>效率很高,不会触发布局重新布局
 
 ```
 Constraint constraint = mConstraintLayout.obtainConstraint();
@@ -202,6 +189,8 @@ mConstraintLayout.updateConstraint(1, constraint);
 ![](img/pic08.gif)
 
 ## 临时添加/删除一个view
+
+>效率很高,不会触发布局重新布局
 
 ```
 TextView view = getTextView(100);

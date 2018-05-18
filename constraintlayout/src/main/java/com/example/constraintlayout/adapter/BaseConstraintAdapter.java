@@ -17,12 +17,19 @@ public abstract class BaseConstraintAdapter {
      * 为该布局位置生成一个view
      *
      * @param position 布局位置
-     * @return 该布局位置的view
+     * @return 该布局位置的view, 如果已经添加不会再此调用该方法
      */
     public abstract View generateViewTo(int position);
 
 
-    public LayoutParams generateLayoutParamsTo(int position) {
+    /**
+     * 为该布局位置的view,生成一个布局参数
+     *
+     * @param position 布局位置
+     * @param view     该位置的view,如果view,已经添加不会再次调用该方法
+     * @return 布局参数
+     */
+    public LayoutParams generateLayoutParamsTo(int position, View view) {
 
         return new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
@@ -33,9 +40,10 @@ public abstract class BaseConstraintAdapter {
      *
      * @param position   布局位置
      * @param constraint 初始化的约束,即约束的四体边是parent的外围,可以通过constraint获取父布局
+     * @param view       该位置的view
      * @return 一个修改后的约束, 将使用该约束约束该布局位置的view
      */
-    public abstract Constraint generateConstraintTo(int position, Constraint constraint);
+    public abstract Constraint generateConstraintTo(int position, Constraint constraint, View view);
 
     /**
      * 返回该布局一共有多少view
