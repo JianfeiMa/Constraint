@@ -30,16 +30,23 @@ public class ListAdapter extends BaseConstraintAdapter {
 
 
     @Override
-    public Constraint generateConstraintTo(int position, Constraint constraint) {
+    public View generateViewTo(int position) {
 
-        return mOperators.get(position).onGenerateConstraint(position, constraint);
+        return mOperators.get(position).onGenerateView(position);
     }
 
 
     @Override
-    public View generateViewTo(int position) {
+    public ConstraintLayout.LayoutParams generateLayoutParamsTo(int position, View view) {
 
-        return mOperators.get(position).onGenerateView(position);
+        return mOperators.get(position).onGenerateLayoutParams(position, view);
+    }
+
+
+    @Override
+    public Constraint generateConstraintTo(int position, Constraint constraint, View view) {
+
+        return mOperators.get(position).onGenerateConstraint(position, constraint, view);
     }
 
 

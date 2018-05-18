@@ -201,7 +201,7 @@ public class RecyclerFragment extends Fragment {
 
 
         @Override
-        public ConstraintLayout.LayoutParams generateLayoutParamsTo(int position,View view) {
+        public ConstraintLayout.LayoutParams generateLayoutParamsTo(int position, View view) {
 
             if (position == 0) {
                 return new ConstraintLayout.LayoutParams(
@@ -215,12 +215,12 @@ public class RecyclerFragment extends Fragment {
                 );
             }
 
-            return super.generateLayoutParamsTo(position,view);
+            return super.generateLayoutParamsTo(position, view);
         }
 
 
         @Override
-        public Constraint generateConstraintTo(int position, Constraint constraint,View view) {
+        public Constraint generateConstraintTo(int position, Constraint constraint, View view) {
 
             if (position == 0) {
                 constraint.leftToLeftOfParent(20).rightToRightOfParent(-20).topToTopOfParent(20);

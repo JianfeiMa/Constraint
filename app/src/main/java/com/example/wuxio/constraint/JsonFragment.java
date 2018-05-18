@@ -343,7 +343,7 @@ public class JsonFragment extends Fragment {
 
             } else if (layoutType == 1) {
 
-                int size = constraint.getWeightWidth(4, 1, 20 * 4);
+                int size = constraint.getWeightWidth(3, 1, 20 * 4);
 
                 /* 通过上一个layoutType判断是否是网格第一个 */
 
@@ -413,7 +413,7 @@ public class JsonFragment extends Fragment {
 
                     Integer index = (Integer) mViewFromJson.getViewData(position);
 
-                    int size = mConstraint.getWeightWidth(4, 1, 20 * 4);
+                    int size = mConstraint.getWeightWidth(3, 1, 20 * 4);
                     int picRes = pics[index];
                     Bitmap bitmap = BitmapReader.decodeMaxSampledBitmap(getResources(), picRes, size, size);
 

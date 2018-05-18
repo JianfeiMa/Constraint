@@ -29,16 +29,23 @@ public class ArrayAdapter extends BaseConstraintAdapter {
 
 
     @Override
-    public Constraint generateConstraintTo(int position, Constraint constraint) {
+    public View generateViewTo(int position) {
 
-        return mOperators[position].onGenerateConstraint(position, constraint);
+        return mOperators[position].onGenerateView(position);
     }
 
 
     @Override
-    public View generateViewTo(int position) {
+    public ConstraintLayout.LayoutParams generateLayoutParamsTo(int position, View view) {
 
-        return mOperators[position].onGenerateView(position);
+        return mOperators[position].onGenerateLayoutParams(position, view);
+    }
+
+
+    @Override
+    public Constraint generateConstraintTo(int position, Constraint constraint, View view) {
+
+        return mOperators[position].onGenerateConstraint(position, constraint, view);
     }
 
 

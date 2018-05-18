@@ -3,6 +3,7 @@ package com.example.constraintlayout.simple;
 import android.view.View;
 
 import com.example.constraintlayout.Constraint;
+import com.example.constraintlayout.ConstraintLayout;
 
 /**
  * Created by LiuJin on 2018-04-03:16:43
@@ -13,14 +14,6 @@ import com.example.constraintlayout.Constraint;
  */
 public interface ConstraintOperator < T extends View > {
 
-    /**
-     * 生成一个约束,用于对应位置的view
-     *
-     * @param position   该布局位置的view
-     * @param constraint 一个空白约束,用来记录对view的约束
-     * @return 对该布局位置的约束
-     */
-    Constraint onGenerateConstraint(int position, Constraint constraint);
 
     /**
      * 该布局位置的view
@@ -29,6 +22,23 @@ public interface ConstraintOperator < T extends View > {
      * @return view
      */
     T onGenerateView(int position);
+
+    /**
+     * 该布局位置的view
+     *
+     * @param position 布局位置
+     * @return view
+     */
+    ConstraintLayout.LayoutParams onGenerateLayoutParams(int position, T t);
+
+    /**
+     * 生成一个约束,用于对应位置的view
+     *
+     * @param position   该布局位置的view
+     * @param constraint 一个空白约束,用来记录对view的约束
+     * @return 对该布局位置的约束
+     */
+    Constraint onGenerateConstraint(int position, Constraint constraint, T child);
 
     /**
      * view measure之前回调
