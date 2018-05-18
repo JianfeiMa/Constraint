@@ -67,8 +67,6 @@ constraint.leftToLeftOfParent(50) 		--> 约束自己的左边至父布局的左�
         .bottomToTopOfParent(500);		--> 含义同上
 ```
 
-![](img/pic04.gif)
-
 * 可以相对已经布局好的view
 
 ```
@@ -78,8 +76,6 @@ constraint.leftToLeftOfView(0, 0)		--> 约束自己的左边至布局位置为0�
         .bottomToBottomOfView(0, 400);		--> 含义同上
 ```
 
-![](img/pic05.gif)
-
 * 亦可以混用,只要可以画出一块区域就行
 
 ```
@@ -88,8 +84,6 @@ constraint.leftToLeftOfParent(50)		--> 约束至父布局
         .rightToRightOfView(0, 0)
         .bottomToTopOfView(0, 100);
 ```
-
-![](img/pic06.gif)
 
 ## 使用[BaseConstraintAdapter](https://github.com/threekilogram/Constraint/blob/master/constraintlayout/src/main/java/com/example/constraintlayout/adapter/BaseConstraintAdapter.java)适配界面
 
@@ -187,10 +181,8 @@ public void afterLayout(int position, View view) {
 ```
 Constraint constraint = mConstraintLayout.obtainConstraint();
 constraint.leftToLeftOfView(0, 0, 500).topToBottomOfView(0, 10, 80);
-mConstraintLayout.updateConstraint(1, constraint);
+mConstraintLayout.updateConstraint(1, constraint);	--> 更新
 ```
-
-![](img/pic08.gif)
 
 ## 临时添加/删除一个view
 
@@ -198,24 +190,14 @@ mConstraintLayout.updateConstraint(1, constraint);
 
 ```
 TextView view = getTextView(100);
-
-mConstraintLayout.post(new Runnable() {
-    @Override
-    public void run() {
-        Constraint constraint = mConstraintLayout.obtainConstraint();
-        constraint.leftToLeftOfView(0, 200)
-                .rightToRightOfView(0, -200)
-                .topToTopOfView(0, 200, 100);
-        mConstraintLayout.addExtraView(view, constraint);
-    }
-});
-
-mConstraintLayout.postDelayed(new Runnable() {
-    @Override
-    public void run() {
-        mConstraintLayout.removeExtraView(view);
-    }
-}, 3000);
 ```
-
-![](img/pic09.gif)
+```
+Constraint constraint = mConstraintLayout.obtainConstraint();
+constraint.leftToLeftOfView(0, 200)
+        .rightToRightOfView(0, -200)
+        .topToTopOfView(0, 200, 100);mConstraintLayout.postDelayed(new Runnable() {
+mConstraintLayout.addExtraView(view, constraint);		--> 添加
+```
+```
+mConstraintLayout.removeExtraView(view);		--> 删除
+```
