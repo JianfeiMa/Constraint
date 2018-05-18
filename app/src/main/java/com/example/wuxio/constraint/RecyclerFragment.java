@@ -194,7 +194,7 @@ public class RecyclerFragment extends Fragment {
             } else {
 
                 ImageView imageView = new ImageView(getContext());
-                imageView.setImageResource(R.drawable.a1286);
+                imageView.setImageResource(R.drawable.ace);
                 return imageView;
             }
         }
