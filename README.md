@@ -36,7 +36,9 @@ dependencies {
 
 ---
 
+![](img/pic03.gif)
 
+---
 
 ### 约束介绍
 

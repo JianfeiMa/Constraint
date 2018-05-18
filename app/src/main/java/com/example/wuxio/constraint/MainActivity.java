@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 TaoFragment.newInstance(),
                 RecyclerFragment.newInstance(),
                 TestFragment.newInstance(),
+                JsonFragment.newInstance()
         };
 
 
@@ -106,12 +107,16 @@ public class MainActivity extends AppCompatActivity {
                     changeFragment(mFragments[1]);
                     break;
 
+                case R.id.menu03:
+                    changeFragment(mFragments[2]);
+                    break;
+
                 case R.id.menu02:
                     changeFragment(mFragments[3]);
                     break;
 
-                case R.id.menu03:
-                    changeFragment(mFragments[2]);
+                case R.id.menu04:
+                    changeFragment(mFragments[4]);
                     break;
 
                 default:

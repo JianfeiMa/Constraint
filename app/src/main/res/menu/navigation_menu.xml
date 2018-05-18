@@ -15,6 +15,10 @@
                 android:title="recycler"/>
 
         <item
+                android:id="@+id/menu04"
+                android:title="图文混排"/>
+
+        <item
                 android:id="@+id/menu02"
                 android:title="test"/>
 
