@@ -145,7 +145,7 @@ public class FlowFragment extends Fragment {
                 int i = width + constraint.getViewRight(position - 1);
                 int parentWidth = constraint.getParentWidth();
 
-                if (i > parentWidth) {
+                if (i > parentWidth - 20) {
 
                     constraint.leftToLeftOfParent(20)
                             .topToBottomOfView(position - 1, 10);
