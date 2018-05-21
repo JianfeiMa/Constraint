@@ -409,10 +409,11 @@ public class TaoFragment extends Fragment {
 
 
         @Override
-        public TextView getView(int i) {
+        public TextView getView(ViewGroup container, int position) {
 
             return getTextView();
         }
+
 
 
         @Override

@@ -117,14 +117,14 @@ public class YunFragment extends Fragment {
 
 
         @Override
-        public ConstraintLayout.LayoutParams generateLayoutParamsTo(int position,View view) {
+        public ConstraintLayout.LayoutParams generateLayoutParamsTo(int position, View view) {
 
-            return super.generateLayoutParamsTo(position,view);
+            return super.generateLayoutParamsTo(position, view);
         }
 
 
         @Override
-        public Constraint generateConstraintTo(int position, Constraint constraint,View view) {
+        public Constraint generateConstraintTo(int position, Constraint constraint, View view) {
 
             int marginFor1234 = 40;
 
@@ -298,7 +298,7 @@ public class YunFragment extends Fragment {
 
 
         @Override
-        public TextView getView(int i) {
+        public TextView getView(ViewGroup container, int position) {
 
             return getTextView();
         }
