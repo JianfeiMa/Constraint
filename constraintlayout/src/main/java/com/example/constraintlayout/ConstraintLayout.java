@@ -96,6 +96,7 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         if (mAdapter != null) {
             mAdapter = adapter;
             super.requestLayout();
+
         } else {
 
             mAdapter = adapter;
@@ -140,6 +141,8 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
             return;
         }
 
+        mAdapter.onStartConstraintChildren(this);
+
         int widthFromParent = MeasureSpec.getSize(widthMeasureSpec);
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int heightFromParent = MeasureSpec.getSize(heightMeasureSpec);
@@ -175,6 +178,10 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
                 child = adapter.generateViewTo(i);
                 LayoutParams params = adapter.generateLayoutParamsTo(i, child);
                 addView(child, params);
+            }
+
+            if (child.getVisibility() == GONE) {
+                continue;
             }
 
             LayoutParams params = measureViewWithConstraint(adapter, i, child);
@@ -435,6 +442,17 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         adapter.beforeLayout(position, child);
         child.layout(params.left, params.top, params.right, params.bottom);
         adapter.afterLayout(position, child);
+    }
+
+
+    @Override
+    protected void onDetachedFromWindow() {
+
+        if (mAdapter != null) {
+            mAdapter.onDetachedFromWindow(this);
+        }
+
+        super.onDetachedFromWindow();
     }
 
     //============================add view 额外添加一个view ============================

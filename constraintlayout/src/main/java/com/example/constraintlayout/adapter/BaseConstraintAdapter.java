@@ -4,6 +4,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.constraintlayout.Constraint;
+import com.example.constraintlayout.ConstraintLayout;
 import com.example.constraintlayout.ConstraintLayout.LayoutParams;
 
 /**
@@ -12,6 +13,15 @@ import com.example.constraintlayout.ConstraintLayout.LayoutParams;
  * @author wuxio
  */
 public abstract class BaseConstraintAdapter {
+
+    /**
+     * 最开始的操作,表明开始进行约束子view了,只保证{@link com.example.constraintlayout.ConstraintLayout}已经创建,
+     * 子view可能还没有创建
+     */
+    public void onStartConstraintChildren(ConstraintLayout constraintLayout) {
+
+    }
+
 
     /**
      * 为该布局位置生成一个view
@@ -53,22 +63,56 @@ public abstract class BaseConstraintAdapter {
     public abstract int getChildCount();
 
 
+    /**
+     * 每个view测量之前调用
+     *
+     * @param position 布局位置
+     * @param view     子view
+     */
     public void beforeMeasure(int position, View view) {
 
     }
 
 
+    /**
+     * 每个view测量之后调用
+     *
+     * @param position 布局位置
+     * @param view     子view
+     */
     public void afterMeasure(int position, View view) {
 
     }
 
 
+    /**
+     * 每个view布局之前调用
+     *
+     * @param position 布局位置
+     * @param view     子view
+     */
     public void beforeLayout(int position, View view) {
 
     }
 
 
+    /**
+     * 每个view布局之后调用
+     *
+     * @param position 布局位置
+     * @param view     子view
+     */
     public void afterLayout(int position, View view) {
+
+    }
+
+
+    /**
+     * {@link View#onDetachedFromWindow()} 时回调
+     *
+     * @param parent 父布局
+     */
+    public void onDetachedFromWindow(ConstraintLayout parent) {
 
     }
 }
