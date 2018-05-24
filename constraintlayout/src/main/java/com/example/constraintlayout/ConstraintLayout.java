@@ -180,13 +180,13 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
                 addView(child, params);
             }
 
-            if (child.getVisibility() == GONE) {
-                continue;
-            }
-
             LayoutParams params = measureViewWithConstraint(adapter, i, child);
 
             /* 记录最右边最下边已经使用到的尺寸,用于之后设置自己的尺寸 */
+
+            if (child.getVisibility() == GONE) {
+                continue;
+            }
 
             if (params.right > mostRight) {
                 mostRight = params.right;
@@ -546,9 +546,15 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
         return -1;
     }
 
-    //============================ 更新一个约束 ============================
+    //============================ 更新 ============================
 
 
+    /**
+     * 使用新的约束重新布局该view
+     *
+     * @param position   布局位置
+     * @param constraint 约束
+     */
     public void updateConstraint(int position, Constraint constraint) {
 
         View view = getChildAt(position);
@@ -559,6 +565,12 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
+    /**
+     * 使用新的约束重新布局该view
+     *
+     * @param view       view
+     * @param constraint 约束
+     */
     public void updateConstraint(View view, Constraint constraint) {
 
         int position = findLayoutPosition(view);
@@ -566,10 +578,52 @@ public class ConstraintLayout extends ViewGroup implements ConstraintSupport {
     }
 
 
-    public void updateConstraint(int position, View view, Constraint constraint) {
+    private void updateConstraint(int position, View view, Constraint constraint) {
 
         measureViewWithConstraint(position, view, constraint);
+
         if (view.getVisibility() != GONE) {
+            layoutChildWithLayoutParams(mAdapter, position, view);
+        }
+    }
+
+
+    /**
+     * 重新从adapter生成一个view,并布局,原来的将会删除
+     *
+     * @param position 布局位置
+     */
+    public void update(int position) {
+
+        if (mAdapter == null) {
+            return;
+        }
+
+        View view = mAdapter.generateViewTo(position);
+        LayoutParams params = mAdapter.generateLayoutParamsTo(position, view);
+        Constraint constraint = mAdapter.generateConstraintTo(position, obtainConstraint(), view);
+
+        update(position, view, params, constraint);
+    }
+
+
+    /**
+     * 重新从adapter更新一个view
+     *
+     * @param position   布局位置
+     * @param view       view
+     * @param params     布局参数
+     * @param constraint 约束
+     */
+    private void update(int position, View view, LayoutParams params, Constraint constraint) {
+
+        removeViewAt(position);
+        addView(view, position, params);
+
+        measureViewWithConstraint(position, view, constraint);
+
+        if (view.getVisibility() != GONE) {
+
             layoutChildWithLayoutParams(mAdapter, position, view);
         }
     }
