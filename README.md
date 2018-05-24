@@ -10,7 +10,7 @@ allprojects {
 ```
 ```
 dependencies {
-    compile 'com.github.threekilogram:Constraint:${version}'
+    implementation 'com.github.threekilogram:Constraint:${version}'
 }
 ```
 
