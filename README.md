@@ -16,6 +16,16 @@ dependencies {
 
 [version 版本号在这里](https://github.com/threekilogram/Constraint/releases)
 
+注意:需要 java 8 支持
+
+```	
+//app/build.gradle
+compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}
+```
+
 ## 简介
 
 使用约束构建布局,类似[ConstraintLayout \| Android Developers](https://developer.android.com/reference/android/support/constraint/ConstraintLayout.html),
