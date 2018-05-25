@@ -19,7 +19,7 @@ dependencies {
 注意:需要 java 8 支持
 
 ```	
-//app/build.gradle
+// app/build.gradle
 compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
