@@ -28,13 +28,16 @@ compileOptions {
 
 ## 简介
 
+
 使用约束构建布局,类似[ConstraintLayout \| Android Developers](https://developer.android.com/reference/android/support/constraint/ConstraintLayout.html),
 
 不同的是使用 `adpter` 适配界面,在测量时生成view并布局,一次测量完成传统的view测量布局两个步骤,
 
-可以简单的实现任何view之间位置相关界面,性能优越,测量之后就已经知道view的布局位置,简化布局操作,节省内存,只记录对view的操作,没有实体类保存信息.
+可以简单的实现任何view之间位置相关界面( view 位置相关 : 一个view的位置可以通过另一个view的位置确定),
 
-配置灵活,每次操作(测量/布局)之前都会询问用户.
+节省内存,只记录对view的操作,没有实体类保存约束信息.
+
+配置灵活, 在测量布局过程中 `adapter` 提供多个回调,用来监听过程.
 
 ### 可以简单的实现如下布局(也可以根据数据动态生成,即每次打开页面都不一样)
 
